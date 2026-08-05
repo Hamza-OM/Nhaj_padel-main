@@ -6,12 +6,19 @@ use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\Court;
 use App\Models\CourtClosure;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Exception;
 
 class BookingService
 {
+    /**
+     * How far ahead of the first slot a customer may still cancel themselves.
+     * Mirrors the cancellation policy quoted in the Club Info FAQ.
+     */
+    public const CANCELLATION_WINDOW_HOURS = 6;
+
     protected PricingService $pricingService;
 
     public function __construct(PricingService $pricingService)
@@ -345,5 +352,65 @@ class BookingService
 
             return $booking->load('items.court');
         });
+    }
+
+    /**
+     * Look up a single booking for a customer. Both the reference code AND the
+     * phone number used to book must match — requiring the pair keeps someone
+     * from enumerating other people's bookings with just one of the two.
+     */
+    public function findForCustomer(string $referenceCode, string $phone): ?Booking
+    {
+        return Booking::with('items.court')
+            ->where('reference_code', strtoupper(trim($referenceCode)))
+            ->where('customer_phone', trim($phone))
+            ->first();
+    }
+
+    /**
+     * Customer-initiated cancellation, subject to the published policy: only
+     * still-active bookings, and only up to CANCELLATION_WINDOW_HOURS before
+     * the first booked slot begins.
+     */
+    public function cancelForCustomer(Booking $booking): Booking
+    {
+        if ($booking->booking_status === 'cancelled') {
+            throw new Exception('This booking has already been cancelled.');
+        }
+
+        $firstSlotAt = $this->firstSlotStartsAt($booking);
+
+        if ($firstSlotAt === null || $firstSlotAt->isPast()) {
+            throw new Exception('This booking has already taken place and can no longer be cancelled.');
+        }
+
+        if ($firstSlotAt->lessThan(now()->addHours(self::CANCELLATION_WINDOW_HOURS))) {
+            throw new Exception(
+                'Bookings can only be cancelled at least '.self::CANCELLATION_WINDOW_HOURS.
+                ' hours before the session starts. Please call the club to change this booking.'
+            );
+        }
+
+        $booking->update(['booking_status' => 'cancelled']);
+
+        return $booking->load('items.court');
+    }
+
+    /**
+     * Earliest start datetime across all of a booking's slots.
+     */
+    protected function firstSlotStartsAt(Booking $booking): ?Carbon
+    {
+        $items = $booking->relationLoaded('items') ? $booking->items : $booking->items()->get();
+
+        $starts = $items->map(function ($item) {
+            $date = $item->booking_date instanceof \DateTimeInterface
+                ? $item->booking_date->format('Y-m-d')
+                : $item->booking_date;
+
+            return Carbon::parse($date.' '.$item->start_time);
+        });
+
+        return $starts->isEmpty() ? null : $starts->sort()->first();
     }
 }

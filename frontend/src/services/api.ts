@@ -62,6 +62,31 @@ export async function createBookingTransaction(data: {
   return json;
 }
 
+export async function lookupBooking(
+  reference: string,
+  phone: string
+): Promise<{ success: boolean; booking: Booking; cancellationWindowHours: number }> {
+  const query = new URLSearchParams({ reference, phone });
+  const res = await fetch(`${API_BASE}/bookings/lookup?${query.toString()}`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Could not find that booking');
+  return json;
+}
+
+export async function cancelCustomerBooking(
+  reference: string,
+  phone: string
+): Promise<{ success: boolean; message: string; booking: Booking }> {
+  const res = await fetch(`${API_BASE}/bookings/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reference, phone })
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Could not cancel this booking');
+  return json;
+}
+
 export async function createThawaniSession(
   bookingId: string,
   totalAmount: number

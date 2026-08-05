@@ -10,6 +10,7 @@ export const translations = {
     navBookCourt: 'Book Court',
     navCourtsRates: 'Courts & Rates',
     navClubInfo: 'Club Info & Hours',
+    navMyBooking: 'My Booking',
     navAdminPortal: 'Admin Portal',
     
     // Common / Currency
@@ -105,6 +106,27 @@ export const translations = {
     lockersDesc: 'Climate-controlled private shower suites and secure lockers.',
     faqTitle: 'Frequently Asked Questions',
 
+    // My Booking (customer self-service lookup & cancellation)
+    myBookingTitle: 'Find My Booking',
+    myBookingSubtitle: 'Enter the reference code from your confirmation along with the phone number you booked with.',
+    myBookingRefLabel: 'Booking Reference',
+    myBookingRefPlaceholder: 'e.g., PAD-7T5RZ',
+    myBookingPhoneLabel: 'Phone Number',
+    myBookingSearchBtn: 'Find Booking',
+    myBookingSearching: 'Searching...',
+    myBookingNotFound: 'No booking found for that reference code and phone number.',
+    myBookingSessionsTitle: 'Your Sessions',
+    myBookingCancelBtn: 'Cancel This Booking',
+    myBookingCancelling: 'Cancelling...',
+    myBookingCancelConfirmTitle: 'Cancel this booking?',
+    myBookingCancelConfirmBody: 'This releases your courts back to the pool and cannot be undone.',
+    myBookingCancelConfirmYes: 'Yes, cancel it',
+    myBookingKeepIt: 'Keep booking',
+    myBookingCancelledNotice: 'This booking has been cancelled.',
+    myBookingCompletedNotice: 'This session has already taken place.',
+    myBookingPolicyNote: 'Free cancellation up to {hours} hours before your session starts.',
+    myBookingSearchAnother: 'Look up another booking',
+
     // Admin View
     adminTitle: 'Admin Management Portal',
     adminSubtitle: 'Real-time overview of active bookings, court blackout closures, rate tiers, and revenue analytics.',
@@ -185,6 +207,7 @@ export const translations = {
     navBookCourt: 'حجز ملعب',
     navCourtsRates: 'الملاعب والأسعار',
     navClubInfo: 'معلومات النادي',
+    navMyBooking: 'حجزي',
     navAdminPortal: 'لوحة الإدارة',
     
     // Common / Currency
@@ -279,6 +302,27 @@ export const translations = {
     lockersTitle: 'غرف تبديل وغرف دُش',
     lockersDesc: 'أجنحة استحمام خاصة مكيفة وخزائن آمنة.',
     faqTitle: 'الأسئلة الشائعة',
+
+    // My Booking (customer self-service lookup & cancellation)
+    myBookingTitle: 'البحث عن حجزي',
+    myBookingSubtitle: 'أدخل الرمز المرجعي من رسالة التأكيد مع رقم الهاتف الذي حجزت به.',
+    myBookingRefLabel: 'الرمز المرجعي للحجز',
+    myBookingRefPlaceholder: 'مثال: PAD-7T5RZ',
+    myBookingPhoneLabel: 'رقم الهاتف',
+    myBookingSearchBtn: 'ابحث عن الحجز',
+    myBookingSearching: 'جارٍ البحث...',
+    myBookingNotFound: 'لم يتم العثور على حجز بهذا الرمز المرجعي ورقم الهاتف.',
+    myBookingSessionsTitle: 'حصصك',
+    myBookingCancelBtn: 'إلغاء هذا الحجز',
+    myBookingCancelling: 'جارٍ الإلغاء...',
+    myBookingCancelConfirmTitle: 'إلغاء هذا الحجز؟',
+    myBookingCancelConfirmBody: 'سيؤدي هذا إلى تحرير ملاعبك مرة أخرى ولا يمكن التراجع عنه.',
+    myBookingCancelConfirmYes: 'نعم، ألغِ الحجز',
+    myBookingKeepIt: 'الإبقاء على الحجز',
+    myBookingCancelledNotice: 'تم إلغاء هذا الحجز.',
+    myBookingCompletedNotice: 'لقد انتهت هذه الحصة بالفعل.',
+    myBookingPolicyNote: 'إلغاء مجاني حتى {hours} ساعات قبل بدء حصتك.',
+    myBookingSearchAnother: 'البحث عن حجز آخر',
 
     // Admin View
     adminTitle: 'لوحة إدارة النادي',

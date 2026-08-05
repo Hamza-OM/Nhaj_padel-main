@@ -27,6 +27,16 @@ Route::post('/pricing/calculate', [CustomerBookingController::class, 'calculateP
 // POST /api/bookings  { customerPhone, customerName?, customerEmail?, paymentMethod, cartItems }
 Route::post('/bookings', [CustomerBookingController::class, 'store']);
 
+// Customer self-service booking lookup & cancellation. Reference codes are short
+// (PAD- + 5 chars), so these are rate limited to blunt brute-force enumeration.
+Route::middleware('throttle:10,1')->group(function () {
+    // GET  /api/bookings/lookup?reference=PAD-XXXXX&phone=9xxxxxxx
+    Route::get('/bookings/lookup', [CustomerBookingController::class, 'lookup']);
+
+    // POST /api/bookings/cancel  { reference, phone }
+    Route::post('/bookings/cancel', [CustomerBookingController::class, 'cancel']);
+});
+
 // POST /api/payments/thawani/create-session  { bookingId, totalAmount }
 Route::post('/payments/thawani/create-session', [ThawaniPaymentController::class, 'createSession']);
 

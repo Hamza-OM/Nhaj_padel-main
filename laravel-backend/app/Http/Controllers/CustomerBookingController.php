@@ -109,4 +109,64 @@ class CustomerBookingController extends Controller
             ], 409);
         }
     }
+
+    /**
+     * GET /api/bookings/lookup?reference=PAD-XXXXX&phone=9xxxxxxx
+     * Lets a customer retrieve their own booking without an account.
+     */
+    public function lookup(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'reference' => 'required|string|max:20',
+            'phone' => 'required|string|min:7|max:20',
+        ]);
+
+        $booking = $this->bookingService->findForCustomer($validated['reference'], $validated['phone']);
+
+        if (! $booking) {
+            // Deliberately vague: don't reveal whether the reference exists but the
+            // phone didn't match, which would confirm a valid reference code.
+            return response()->json([
+                'error' => 'No booking found for that reference code and phone number.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'booking' => new BookingResource($booking),
+            'cancellationWindowHours' => BookingService::CANCELLATION_WINDOW_HOURS,
+        ]);
+    }
+
+    /**
+     * POST /api/bookings/cancel  { reference, phone }
+     * Customer self-service cancellation, subject to the published policy.
+     */
+    public function cancel(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'reference' => 'required|string|max:20',
+            'phone' => 'required|string|min:7|max:20',
+        ]);
+
+        $booking = $this->bookingService->findForCustomer($validated['reference'], $validated['phone']);
+
+        if (! $booking) {
+            return response()->json([
+                'error' => 'No booking found for that reference code and phone number.',
+            ], 404);
+        }
+
+        try {
+            $booking = $this->bookingService->cancelForCustomer($booking);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your booking has been cancelled.',
+            'booking' => new BookingResource($booking),
+        ]);
+    }
 }

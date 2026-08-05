@@ -5,6 +5,7 @@ import { CustomerBookingView } from './components/CustomerBookingView';
 import { AdminDashboardView } from './components/AdminDashboardView';
 import { CourtsAndRatesView } from './components/CourtsAndRatesView';
 import { ClubInfoView } from './components/ClubInfoView';
+import { MyBookingView } from './components/MyBookingView';
 import { Footer } from './components/Footer';
 
 // Three.js pulls in a large chunk — load it async so it never blocks first paint
@@ -45,6 +46,7 @@ export default function App() {
                 {currentTab === 'customer' && <CustomerBookingView />}
                 {currentTab === 'rates' && <CourtsAndRatesView onBookNow={handleBookNow} />}
                 {currentTab === 'info' && <ClubInfoView onBookNow={handleBookNow} />}
+                {currentTab === 'mybooking' && <MyBookingView />}
                 {currentTab === 'admin' && <AdminDashboardView />}
               </motion.div>
             </AnimatePresence>

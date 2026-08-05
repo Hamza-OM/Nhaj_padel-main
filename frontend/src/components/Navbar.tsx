@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar, ShieldCheck, Tag, Info, Globe, Menu, X, ChevronRight } from 'lucide-react';
+import { Calendar, ShieldCheck, Tag, Info, Globe, Menu, X, ChevronRight, Ticket } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
 
-export type AppTab = 'customer' | 'rates' | 'info' | 'admin';
+export type AppTab = 'customer' | 'rates' | 'info' | 'mybooking' | 'admin';
 
 interface NavbarProps {
   currentTab: AppTab;
@@ -25,6 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
     { id: 'customer', label: t.navBookCourt, icon: <Calendar className="w-4 h-4 shrink-0" /> },
     { id: 'rates', label: t.navCourtsRates, icon: <Tag className="w-4 h-4 shrink-0" /> },
     { id: 'info', label: t.navClubInfo, icon: <Info className="w-4 h-4 shrink-0" /> },
+    { id: 'mybooking', label: t.navMyBooking, icon: <Ticket className="w-4 h-4 shrink-0" /> },
     { id: 'admin', label: t.navAdminPortal, icon: <ShieldCheck className="w-4 h-4 shrink-0" /> }
   ];
 
