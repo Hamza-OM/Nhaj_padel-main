@@ -160,6 +160,8 @@ export const translations = {
     myBookingCompletedNotice: 'This session has already taken place.',
     myBookingPolicyNote: 'Free cancellation up to {hours} hours before your session starts.',
     myBookingSearchAnother: 'Look up another booking',
+    viewMyBookingBtn: 'View My Booking',
+    saveReferenceHint: 'Save this reference — you can look up or cancel your booking with it any time.',
 
     // Admin View
     adminTitle: 'Admin Management Portal',
@@ -391,6 +393,8 @@ export const translations = {
     myBookingCompletedNotice: 'لقد انتهت هذه الحصة بالفعل.',
     myBookingPolicyNote: 'إلغاء مجاني حتى {hours} ساعات قبل بدء حصتك.',
     myBookingSearchAnother: 'البحث عن حجز آخر',
+    viewMyBookingBtn: 'عرض حجزي',
+    saveReferenceHint: 'احتفظ بهذا الرمز المرجعي — يمكنك من خلاله عرض حجزك أو إلغاؤه في أي وقت.',
 
     // Admin View
     adminTitle: 'لوحة إدارة النادي',

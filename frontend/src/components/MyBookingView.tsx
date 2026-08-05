@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router-dom';
 import { Search, Ticket, AlertCircle, CheckCircle2, XCircle, CalendarClock, ShieldCheck } from 'lucide-react';
 import type { Booking } from '../types';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
 import { lookupBooking, cancelCustomerBooking } from '../services/api';
 
+/** Optional handoff from the post-booking confirmation modal. */
+interface LookupHandoff {
+  reference?: string;
+  phone?: string;
+}
+
 export const MyBookingView: React.FC = () => {
   const { lang, currency } = useApp();
   const t = translations[lang];
+  const handoff = (useLocation().state ?? null) as LookupHandoff | null;
 
-  const [reference, setReference] = useState('');
-  const [phone, setPhone] = useState('');
+  const [reference, setReference] = useState(handoff?.reference ?? '');
+  const [phone, setPhone] = useState(handoff?.phone ?? '');
   const [booking, setBooking] = useState<Booking | null>(null);
   const [cancellationWindowHours, setCancellationWindowHours] = useState<number>(6);
 
@@ -21,9 +29,8 @@ export const MyBookingView: React.FC = () => {
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reference.trim() || !phone.trim()) return;
+  const runLookup = useCallback(async (ref: string, ph: string) => {
+    if (!ref.trim() || !ph.trim()) return;
 
     setIsSearching(true);
     setError(null);
@@ -31,7 +38,7 @@ export const MyBookingView: React.FC = () => {
     setBooking(null);
 
     try {
-      const res = await lookupBooking(reference.trim(), phone.trim());
+      const res = await lookupBooking(ref.trim(), ph.trim());
       setBooking(res.booking);
       setCancellationWindowHours(res.cancellationWindowHours ?? 6);
     } catch (err) {
@@ -39,6 +46,22 @@ export const MyBookingView: React.FC = () => {
     } finally {
       setIsSearching(false);
     }
+  }, [t.myBookingNotFound]);
+
+  // Arriving straight from the booking confirmation — load it without making the
+  // customer retype what they just entered.
+  useEffect(() => {
+    if (handoff?.reference && handoff?.phone) {
+      runLookup(handoff.reference, handoff.phone);
+    }
+    // Intentionally mount-only: re-running on handoff identity would re-fetch
+    // after the customer cancels and the component re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    runLookup(reference, phone);
   };
 
   const handleCancel = async () => {

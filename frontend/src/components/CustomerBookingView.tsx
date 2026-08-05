@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -11,7 +12,8 @@ import {
   ChevronRight,
   Phone,
   Tag,
-  AlertCircle
+  AlertCircle,
+  Ticket
 } from 'lucide-react';
 import type {
   TimeSlotAvailability,
@@ -31,6 +33,7 @@ import {
 import { ThawaniSandboxModal } from './ThawaniSandboxModal';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
+import { ROUTES } from './Navbar';
 
 const gridStagger = {
   hidden: {},
@@ -43,6 +46,7 @@ const gridItem = {
 
 export const CustomerBookingView: React.FC = () => {
   const { lang, currency } = useApp();
+  const navigate = useNavigate();
   const t = translations[lang];
 
   // Date Management
@@ -816,20 +820,49 @@ export const CustomerBookingView: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  setConfirmedBooking(null);
-                  if (confirmedBooking.paymentStatus !== 'failed') {
-                    setCart([]);
-                  }
-                  loadSlots(selectedDate);
-                }}
-                className="w-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-4 rounded-2xl transition-colors neon-glow cursor-pointer"
-              >
-                {confirmedBooking.paymentStatus === 'failed'
-                  ? (lang === 'ar' ? 'المحاولة مرة أخرى' : 'Try Again')
-                  : t.bookAnother}
-              </button>
+              {confirmedBooking.paymentStatus !== 'failed' && (
+                <p className="text-[11px] text-on-surface-variant text-center leading-relaxed -mt-2">
+                  {t.saveReferenceHint}
+                </p>
+              )}
+
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => {
+                    setConfirmedBooking(null);
+                    if (confirmedBooking.paymentStatus !== 'failed') {
+                      setCart([]);
+                    }
+                    loadSlots(selectedDate);
+                  }}
+                  className="w-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-4 rounded-2xl transition-colors neon-glow cursor-pointer"
+                >
+                  {confirmedBooking.paymentStatus === 'failed'
+                    ? (lang === 'ar' ? 'المحاولة مرة أخرى' : 'Try Again')
+                    : t.bookAnother}
+                </button>
+
+                {confirmedBooking.paymentStatus !== 'failed' && (
+                  <button
+                    onClick={() => {
+                      // Hand the reference/phone over via router state rather than the
+                      // URL — a phone number has no business sitting in a query string.
+                      navigate(ROUTES.myBooking, {
+                        state: {
+                          reference: confirmedBooking.referenceCode,
+                          phone: confirmedBooking.customerPhone
+                        }
+                      });
+                      setConfirmedBooking(null);
+                      setCart([]);
+                    }}
+                    className="w-full glass-panel text-on-surface hover:text-primary-container hover:bg-white/10 font-bold py-3 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Ticket className="w-4 h-4 text-primary-container" />
+                    <span>{t.viewMyBookingBtn}</span>
+                  </button>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
