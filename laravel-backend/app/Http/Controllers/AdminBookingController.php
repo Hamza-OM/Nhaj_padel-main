@@ -66,6 +66,10 @@ class AdminBookingController extends Controller
      */
     public function cancel(Booking $booking): JsonResponse
     {
+        if ($booking->booking_status === 'cancelled') {
+            return response()->json(['error' => 'Booking is already cancelled'], 422);
+        }
+
         $booking->update(['booking_status' => 'cancelled']);
 
         return response()->json([
