@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
+        $middleware->alias([
+            'admin.key' => \App\Http\Middleware\VerifyAdminKey::class,
+        ]);
+
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);

@@ -10,6 +10,20 @@ import type {
 } from '../types';
 
 const API_BASE = '/api';
+const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY as string | undefined;
+
+// Wraps fetch for /api/admin/* routes, injecting the shared X-Admin-Key header
+// the backend's VerifyAdminKey middleware requires.
+function adminFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  return fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(ADMIN_API_KEY ? { 'X-Admin-Key': ADMIN_API_KEY } : {}),
+      ...options.headers
+    }
+  });
+}
 
 export async function fetchSlotAvailability(dateStr: string): Promise<{
   date: string;
@@ -75,15 +89,14 @@ export async function verifyThawaniPayment(sessionId: string, status: 'paid' | '
 
 // Admin APIs
 export async function fetchAdminCourts(): Promise<Court[]> {
-  const res = await fetch(`${API_BASE}/admin/courts`);
+  const res = await adminFetch('/admin/courts');
   if (!res.ok) throw new Error('Failed to fetch courts');
   return res.json();
 }
 
 export async function createAdminCourt(court: Partial<Court>): Promise<Court> {
-  const res = await fetch(`${API_BASE}/admin/courts`, {
+  const res = await adminFetch('/admin/courts', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(court)
   });
   if (!res.ok) throw new Error('Failed to create court');
@@ -91,9 +104,8 @@ export async function createAdminCourt(court: Partial<Court>): Promise<Court> {
 }
 
 export async function updateAdminCourt(id: string, updates: Partial<Court>): Promise<Court> {
-  const res = await fetch(`${API_BASE}/admin/courts/${id}`, {
+  const res = await adminFetch(`/admin/courts/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates)
   });
   if (!res.ok) throw new Error('Failed to update court');
@@ -101,7 +113,7 @@ export async function updateAdminCourt(id: string, updates: Partial<Court>): Pro
 }
 
 export async function deleteAdminCourt(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/admin/courts/${id}`, { method: 'DELETE' });
+  const res = await adminFetch(`/admin/courts/${id}`, { method: 'DELETE' });
   if (!res.ok) {
     const json = await res.json().catch(() => null);
     throw new Error(json?.message || 'Failed to delete court');
@@ -109,15 +121,14 @@ export async function deleteAdminCourt(id: string): Promise<void> {
 }
 
 export async function fetchAdminClosures(): Promise<CourtClosure[]> {
-  const res = await fetch(`${API_BASE}/admin/closures`);
+  const res = await adminFetch('/admin/closures');
   if (!res.ok) throw new Error('Failed to fetch closures');
   return res.json();
 }
 
 export async function createAdminClosure(closure: Partial<CourtClosure>): Promise<CourtClosure> {
-  const res = await fetch(`${API_BASE}/admin/closures`, {
+  const res = await adminFetch('/admin/closures', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(closure)
   });
   const json = await res.json();
@@ -126,20 +137,19 @@ export async function createAdminClosure(closure: Partial<CourtClosure>): Promis
 }
 
 export async function deleteAdminClosure(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/admin/closures/${id}`, { method: 'DELETE' });
+  const res = await adminFetch(`/admin/closures/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete closure');
 }
 
 export async function fetchAdminPricingRules(): Promise<TieredPricingRule[]> {
-  const res = await fetch(`${API_BASE}/admin/pricing-rules`);
+  const res = await adminFetch('/admin/pricing-rules');
   if (!res.ok) throw new Error('Failed to fetch pricing rules');
   return res.json();
 }
 
 export async function createAdminPricingRule(rule: Partial<TieredPricingRule>): Promise<TieredPricingRule> {
-  const res = await fetch(`${API_BASE}/admin/pricing-rules`, {
+  const res = await adminFetch('/admin/pricing-rules', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rule)
   });
   if (!res.ok) throw new Error('Failed to create pricing rule');
@@ -160,13 +170,13 @@ export async function fetchAdminBookings(filters?: {
   if (filters?.paymentMethod) query.set('paymentMethod', filters.paymentMethod);
   if (filters?.phone) query.set('phone', filters.phone);
 
-  const res = await fetch(`${API_BASE}/admin/bookings?${query.toString()}`);
+  const res = await adminFetch(`/admin/bookings?${query.toString()}`);
   if (!res.ok) throw new Error('Failed to fetch bookings');
   return res.json();
 }
 
 export async function cancelAdminBooking(id: string): Promise<Booking> {
-  const res = await fetch(`${API_BASE}/admin/bookings/${id}/cancel`, { method: 'POST' });
+  const res = await adminFetch(`/admin/bookings/${id}/cancel`, { method: 'POST' });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || 'Failed to cancel booking');
   return json.booking;

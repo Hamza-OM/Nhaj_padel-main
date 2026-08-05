@@ -35,7 +35,7 @@ Route::post('/payments/thawani/verify', [ThawaniPaymentController::class, 'verif
 
 // ── Admin Routes ─────────────────────────────────────────────────────────────
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('admin.key')->group(function () {
 
     // Courts CRUD
     Route::get('/courts',              [AdminCourtController::class, 'index']);
