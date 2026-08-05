@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill //F //PID 2752)",
+      "Bash(taskkill //F //PID 15280)",
+      "Bash(netstat -ano)",
+      "Bash(/c/xampp/php/php.exe -r ' *)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/bookings -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(cd \"C:\\\\Users\\\\Hamza\\\\Downloads\\\\Nhaj_padel-main\\\\frontend\\\\src\" && grep -n \"React\\\\.\" components/*.tsx; echo ---index.html---; cat ../index.html)"
+    ]
+  }
+}

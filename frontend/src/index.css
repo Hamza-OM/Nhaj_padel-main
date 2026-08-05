@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:ital,wght@0,700;0,800;0,900;1,700;1,800&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Headline font: Montserrat (bold, tight tracking). Body: Hanken Grotesk. */
+  --font-heading: "Montserrat", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Hanken Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* "Riverside Padel" style dark glass + neon-lime design system, transcribed from DESIGN.md */
+  --color-surface: #0b1326;
+  --color-surface-dim: #0b1326;
+  --color-surface-bright: #31394d;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+  --color-surface-variant: #2d3449;
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #c4c9ac;
+  --color-inverse-surface: #dae2fd;
+  --color-inverse-on-surface: #283044;
+
+  --color-outline: #8e9379;
+  --color-outline-variant: #444933;
+
+  --color-primary: #ffffff;
+  --color-on-primary: #283500;
+  --color-primary-container: #c3f400;
+  --color-on-primary-container: #556d00;
+  --color-inverse-primary: #506600;
+  --color-primary-fixed: #c3f400;
+  --color-primary-fixed-dim: #abd600;
+  --color-on-primary-fixed: #161e00;
+  --color-on-primary-fixed-variant: #3c4d00;
+
+  --color-secondary: #95d3ba;
+  --color-on-secondary: #003829;
+  --color-secondary-container: #0b513d;
+  --color-on-secondary-container: #83c2a9;
+  --color-secondary-fixed: #b0f0d6;
+  --color-secondary-fixed-dim: #95d3ba;
+  --color-on-secondary-fixed: #002117;
+  --color-on-secondary-fixed-variant: #0b513d;
+
+  --color-tertiary: #ffffff;
+  --color-on-tertiary: #003824;
+  --color-tertiary-container: #6ffbbe;
+  --color-on-tertiary-container: #00734e;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-on-tertiary-fixed: #002113;
+  --color-on-tertiary-fixed-variant: #005236;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  --color-background: #0b1326;
+  --color-on-background: #dae2fd;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(196 249 0 / 0.15);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(196 249 0 / 0.3);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+:focus-visible {
+  outline: 2px solid #c3f400;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Glassmorphism + neon-glow system, ported from the Stitch design spec */
+.glass-panel {
+  background: rgba(19, 27, 46, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px rgba(195, 244, 0, 0.25);
+}
+
+.neon-glow-hover {
+  transition: box-shadow 300ms ease, border-color 300ms ease, transform 300ms ease;
+}
+.neon-glow-hover:hover {
+  box-shadow: 0 0 25px rgba(195, 244, 0, 0.6);
+  border-color: rgba(195, 244, 0, 0.5);
+  transform: translateY(-4px);
+}
+
+.bg-pattern {
+  background-image: radial-gradient(rgba(195, 244, 0, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}

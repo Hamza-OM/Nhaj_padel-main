@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class BookingResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        $bookingDate = $this->booking_date instanceof \DateTimeInterface
+            ? $this->booking_date->format('Y-m-d')
+            : $this->booking_date;
+
+        // Nothing ever writes booking_status = 'completed' in the DB — a confirmed
+        // booking is treated as completed once its date has passed.
+        $bookingStatus = $this->booking_status;
+        if ($bookingStatus === 'confirmed' && $bookingDate < now()->format('Y-m-d')) {
+            $bookingStatus = 'completed';
+        }
+
+        return [
+            'id' => (string) $this->id,
+            'referenceCode' => $this->reference_code,
+            'customerPhone' => $this->customer_phone,
+            'customerName' => $this->customer_name,
+            'customerEmail' => $this->customer_email,
+            'bookingDate' => $bookingDate,
+            'totalDurationHours' => (int) $this->total_duration_hours,
+            'subtotalAmount' => (float) $this->subtotal_amount,
+            'discountAmount' => (float) $this->discount_amount,
+            'totalAmount' => (float) $this->total_amount,
+            'currency' => $this->currency,
+            'paymentMethod' => $this->payment_method,
+            'paymentStatus' => $this->payment_status,
+            'bookingStatus' => $bookingStatus,
+            'thawaniSessionId' => $this->thawani_session_id,
+            'thawaniPaymentUrl' => $this->thawani_payment_url,
+            'assignedSlots' => $this->whenLoaded('items', function () {
+                return $this->items->map(fn ($item) => [
+                    'slotTime' => substr($item->start_time, 0, 5),
+                    'endTime' => substr($item->end_time, 0, 5),
+                    'date' => $item->booking_date instanceof \DateTimeInterface
+                        ? $item->booking_date->format('Y-m-d')
+                        : $item->booking_date,
+                    'courtId' => (string) $item->court_id,
+                    'courtName' => optional($item->court)->name,
+                    'price' => (float) $item->slot_price,
+                ]);
+            }, []),
+            'createdAt' => optional($this->created_at)->toISOString(),
+        ];
+    }
+}
