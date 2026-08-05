@@ -1,14 +1,11 @@
 import React from 'react';
-import { Calendar, ShieldCheck, MapPin, Clock, CreditCard } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Calendar, ShieldCheck, MapPin, Clock, CreditCard, Ticket } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
-import { AppTab } from './Navbar';
+import { ROUTES } from './Navbar';
 
-interface FooterProps {
-  onSelectTab: (tab: AppTab) => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
+export const Footer: React.FC = () => {
   const { lang } = useApp();
   const t = translations[lang];
 
@@ -40,38 +37,47 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
             <h4 className="font-bold text-sm text-primary uppercase tracking-wider">{t.navBookCourt} & More</h4>
             <ul className="space-y-2 text-on-surface-variant">
               <li>
-                <button
-                  onClick={() => onSelectTab('customer')}
+                <Link
+                  to={ROUTES.book}
                   className="hover:text-primary-container transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Calendar className="w-3.5 h-3.5 text-primary-container" />
                   <span>{t.navBookCourt}</span>
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onSelectTab('rates')}
+                <Link
+                  to={ROUTES.rates}
                   className="hover:text-primary-container transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>{t.navCourtsRates}</span>
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onSelectTab('info')}
+                <Link
+                  to={ROUTES.info}
                   className="hover:text-primary-container transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>{t.navClubInfo}</span>
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onSelectTab('admin')}
+                <Link
+                  to={ROUTES.myBooking}
+                  className="hover:text-primary-container transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Ticket className="w-3.5 h-3.5 text-primary-container" />
+                  <span>{t.navMyBooking}</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={ROUTES.admin}
                   className="hover:text-primary-container transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-primary-container" />
                   <span>{t.navAdminPortal}</span>
-                </button>
+                </Link>
               </li>
             </ul>
           </div>

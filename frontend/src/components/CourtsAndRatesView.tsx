@@ -1,12 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Zap, Award, Layers } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
-
-interface CourtsAndRatesViewProps {
-  onBookNow: () => void;
-}
+import { ROUTES } from './Navbar';
 
 const gridStagger = {
   hidden: {},
@@ -17,9 +15,11 @@ const gridItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.25 } }
 };
 
-export const CourtsAndRatesView: React.FC<CourtsAndRatesViewProps> = ({ onBookNow }) => {
+export const CourtsAndRatesView: React.FC = () => {
   const { lang, currency } = useApp();
   const t = translations[lang];
+  const navigate = useNavigate();
+  const onBookNow = () => navigate(ROUTES.book);
 
   const courtsList = [
     { id: 1, name: lang === 'ar' ? 'ملعب رقم 1' : 'Court #1', type: lang === 'ar' ? 'مغلق بانورامي' : 'Panoramic Indoor', surface: 'Mondo Supercourt XN (Blue)', lighting: 'Philips LED Sports 1000 Lux' },

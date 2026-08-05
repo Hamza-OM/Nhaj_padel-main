@@ -1,12 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Phone, Mail, Wifi, Car, Coffee, Shield, HelpCircle, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
-
-interface ClubInfoViewProps {
-  onBookNow: () => void;
-}
+import { ROUTES } from './Navbar';
 
 const gridStagger = {
   hidden: {},
@@ -17,9 +15,11 @@ const gridItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.25 } }
 };
 
-export const ClubInfoView: React.FC<ClubInfoViewProps> = ({ onBookNow }) => {
+export const ClubInfoView: React.FC = () => {
   const { lang, currency } = useApp();
   const t = translations[lang];
+  const navigate = useNavigate();
+  const onBookNow = () => navigate(ROUTES.book);
 
   const amenities = [
     { icon: <Wifi className="w-5 h-5 text-primary-container" />, title: t.wifiTitle, desc: t.wifiDesc },

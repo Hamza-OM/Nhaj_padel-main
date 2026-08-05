@@ -1,41 +1,50 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Calendar, ShieldCheck, Tag, Info, Globe, Menu, X, ChevronRight, Ticket } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
 
-export type AppTab = 'customer' | 'rates' | 'info' | 'mybooking' | 'admin';
+/** Every routed page in the app, in nav order. */
+export const ROUTES = {
+  home: '/',
+  book: '/book',
+  rates: '/rates',
+  info: '/info',
+  myBooking: '/my-booking',
+  admin: '/admin'
+} as const;
 
-interface NavbarProps {
-  currentTab: AppTab;
-  onSelectTab: (tab: AppTab) => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
+export const Navbar: React.FC = () => {
   const { lang, setLang } = useApp();
   const t = translations[lang];
+  const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleTabClick = (tab: AppTab) => {
-    onSelectTab(tab);
+  const navItems: { to: string; label: string; icon: React.ReactNode }[] = [
+    { to: ROUTES.book, label: t.navBookCourt, icon: <Calendar className="w-4 h-4 shrink-0" /> },
+    { to: ROUTES.rates, label: t.navCourtsRates, icon: <Tag className="w-4 h-4 shrink-0" /> },
+    { to: ROUTES.info, label: t.navClubInfo, icon: <Info className="w-4 h-4 shrink-0" /> },
+    { to: ROUTES.myBooking, label: t.navMyBooking, icon: <Ticket className="w-4 h-4 shrink-0" /> },
+    { to: ROUTES.admin, label: t.navAdminPortal, icon: <ShieldCheck className="w-4 h-4 shrink-0" /> }
+  ];
+
+  const isActive = (to: string) => location.pathname === to;
+
+  const handleNavigate = (to: string) => {
+    navigate(to);
     setMobileMenuOpen(false);
   };
-
-  const navItems: { id: AppTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'customer', label: t.navBookCourt, icon: <Calendar className="w-4 h-4 shrink-0" /> },
-    { id: 'rates', label: t.navCourtsRates, icon: <Tag className="w-4 h-4 shrink-0" /> },
-    { id: 'info', label: t.navClubInfo, icon: <Info className="w-4 h-4 shrink-0" /> },
-    { id: 'mybooking', label: t.navMyBooking, icon: <Ticket className="w-4 h-4 shrink-0" /> },
-    { id: 'admin', label: t.navAdminPortal, icon: <ShieldCheck className="w-4 h-4 shrink-0" /> }
-  ];
 
   return (
     <header className="sticky top-0 z-40 bg-surface-dim/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-primary-container/5 text-on-surface transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Brand Logo & Badges */}
-          <button
-            onClick={() => handleTabClick('customer')}
+          {/* Brand Logo & Badges — links home */}
+          <Link
+            to={ROUTES.home}
+            onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2.5 sm:gap-3 text-start cursor-pointer group shrink-0"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary-container rounded-xl flex items-center justify-center shadow-sm neon-glow group-hover:shadow-md transition-shadow shrink-0">
@@ -52,23 +61,23 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
               </div>
               <p className="text-xs text-on-surface-variant hidden md:block font-medium">{t.tagline}</p>
             </div>
-          </button>
+          </Link>
 
           {/* Desktop Navigation Links (md and up) */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 relative">
             {navItems.map((item) => {
-              const isActive = currentTab === item.id;
+              const active = isActive(item.to);
               return (
-                <button
-                  key={item.id}
-                  onClick={() => handleTabClick(item.id)}
+                <Link
+                  key={item.to}
+                  to={item.to}
                   className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                    isActive
+                    active
                       ? 'text-on-primary-container'
                       : 'text-on-surface-variant hover:text-primary-container hover:bg-white/5'
                   }`}
                 >
-                  {isActive && (
+                  {active && (
                     <motion.span
                       layoutId="nav-active-pill"
                       className="absolute inset-0 rounded-xl bg-primary-container shadow-sm -z-10"
@@ -77,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
                   )}
                   {item.icon}
                   <span>{item.label}</span>
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -108,18 +117,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
         {/* Mobile Horizontal Fast-Tab Strip (always visible on mobile for 1-tap navigation) */}
         <div className="md:hidden flex items-center gap-1.5 py-2 overflow-x-auto scrollbar-none border-t border-white/5">
           {navItems.map((item) => {
-            const isActive = currentTab === item.id;
+            const active = isActive(item.to);
             return (
-              <button
-                key={item.id}
-                onClick={() => handleTabClick(item.id)}
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setMobileMenuOpen(false)}
                 className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer shrink-0 ${
-                  isActive
-                    ? 'text-on-primary-container'
-                    : 'glass-panel text-on-surface-variant'
+                  active ? 'text-on-primary-container' : 'glass-panel text-on-surface-variant'
                 }`}
               >
-                {isActive && (
+                {active && (
                   <motion.span
                     layoutId="nav-active-pill-mobile"
                     className="absolute inset-0 rounded-lg bg-primary-container shadow-xs -z-10"
@@ -128,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
                 )}
                 {item.icon}
                 <span>{item.label}</span>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -150,16 +158,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab }) => {
               </div>
               {navItems.map((item) => (
                 <button
-                  key={item.id}
-                  onClick={() => handleTabClick(item.id)}
+                  key={item.to}
+                  onClick={() => handleNavigate(item.to)}
                   className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold transition-colors cursor-pointer ${
-                    currentTab === item.id
+                    isActive(item.to)
                       ? 'bg-primary-container/15 text-primary-container border border-primary-container/40'
                       : 'glass-panel text-on-surface hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl ${currentTab === item.id ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                    <div className={`p-2 rounded-xl ${isActive(item.to) ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface-variant'}`}>
                       {item.icon}
                     </div>
                     <span className="text-sm">{item.label}</span>

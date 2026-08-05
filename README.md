@@ -108,6 +108,23 @@ and the React app is a static SPA that talks to it over HTTP.
 
 ---
 
+## 🧭 Pages
+
+The frontend is a single-page app with real, linkable URLs (React Router):
+
+| Path | Page |
+|---|---|
+| `/` | Home / landing page |
+| `/book` | Book a court (date picker, slot cart, checkout) |
+| `/rates` | Courts & tiered rates |
+| `/info` | Club info, hours, amenities, FAQ |
+| `/my-booking` | Look up or cancel your own booking |
+| `/admin` | Admin dashboard |
+
+Any unknown path redirects to `/`.
+
+---
+
 ## 🌐 API Reference
 
 All routes are prefixed with `/api`.
@@ -119,10 +136,15 @@ All routes are prefixed with `/api`.
 | `GET` | `/api/slots/availability?date=YYYY-MM-DD` | Pooled slot availability |
 | `POST` | `/api/pricing/calculate` | Tiered price preview |
 | `POST` | `/api/bookings` | Place a booking |
+| `GET` | `/api/bookings/lookup?reference=&phone=` | Retrieve own booking (rate limited) |
+| `POST` | `/api/bookings/cancel` | Self-service cancel, 6 h policy (rate limited) |
 | `POST` | `/api/payments/thawani/create-session` | Initiate Thawani checkout |
 | `POST` | `/api/payments/thawani/verify` | Verify / simulate payment result |
 
 ### Admin
+
+> All `/api/admin/*` routes require an `X-Admin-Key` header matching `ADMIN_API_KEY`
+> in `laravel-backend/.env`. Requests without it get a `401`.
 
 | Method | Path | Description |
 |---|---|---|
@@ -164,4 +186,24 @@ The platform supports simulating **Payment Success** and **Payment Cancellation*
 
 1. Build the frontend: `cd frontend && npm run build` → outputs to `frontend/dist/`
 2. Point your web server (Nginx/Apache) to `laravel-backend/public` for `/api/*` and to `frontend/dist/` for everything else.
-3. Set `APP_ENV=production`, `APP_DEBUG=false`, and run `php artisan config:cache`.
+3. **Enable SPA history fallback.** The frontend uses client-side routing, so any
+   unknown path must serve `index.html` rather than returning 404 — otherwise
+   deep links like `/my-booking` break on refresh or when opened directly.
+
+   *Nginx:*
+   ```nginx
+   location / {
+       try_files $uri $uri/ /index.html;
+   }
+   ```
+
+   *Apache* — add `frontend/dist/.htaccess`:
+   ```apache
+   RewriteEngine On
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule . /index.html [L]
+   ```
+4. Set `APP_ENV=production`, `APP_DEBUG=false`, and run `php artisan config:cache`.
+5. Set a strong `ADMIN_API_KEY` in `laravel-backend/.env` and the matching
+   `VITE_ADMIN_API_KEY` in the frontend build environment.
