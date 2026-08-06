@@ -41,7 +41,7 @@ class AdminAuthTest extends TestCase
     {
         $response = $this->postJson('/api/admin/login', [
             'email' => 'admin@padel.com',
-            'password' => 'admin123',
+            'password' => 'Demo-5e977ff12f8c',
         ]);
 
         $response->assertOk()->assertJsonStructure(['token', 'user' => ['name', 'email']]);
@@ -66,7 +66,7 @@ class AdminAuthTest extends TestCase
         // whether an email is registered.
         $unknown = $this->postJson('/api/admin/login', [
             'email' => 'nobody@example.com',
-            'password' => 'admin123',
+            'password' => 'Demo-5e977ff12f8c',
         ]);
         $wrongPassword = $this->postJson('/api/admin/login', [
             'email' => 'admin@padel.com',
@@ -82,7 +82,7 @@ class AdminAuthTest extends TestCase
     {
         $token = $this->postJson('/api/admin/login', [
             'email' => 'admin@padel.com',
-            'password' => 'admin123',
+            'password' => 'Demo-5e977ff12f8c',
         ])->json('token');
 
         $this->postJson('/api/admin/logout', [], ['Authorization' => "Bearer {$token}"])
@@ -105,7 +105,7 @@ class AdminAuthTest extends TestCase
     {
         $token = $this->postJson('/api/admin/login', [
             'email' => 'admin@padel.com',
-            'password' => 'admin123',
+            'password' => 'Demo-5e977ff12f8c',
         ])->json('token');
 
         $this->getJson('/api/admin/me', ['Authorization' => "Bearer {$token}"])
@@ -134,7 +134,7 @@ class AdminAuthTest extends TestCase
     {
         $user = User::where('email', 'admin@padel.com')->first();
 
-        $this->assertNotSame('admin123', $user->password);
+        $this->assertNotSame('Demo-5e977ff12f8c', $user->password);
         $this->assertStringStartsWith('$2y$', $user->password);
     }
 }

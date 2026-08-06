@@ -26,7 +26,7 @@ A full-stack web application for managing padel court bookings, featuring an **A
 | Field | Value |
 |---|---|
 | Email | `admin@padel.com` |
-| Password | `admin123` |
+| Password | `Demo-5e977ff12f8c` |
 
 This account is created by the database seeder (`php artisan migrate --seed`) with
 a properly hashed password — logging in calls `POST /api/admin/login`, which the

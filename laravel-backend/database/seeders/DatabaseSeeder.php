@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             ['email' => env('ADMIN_EMAIL', 'admin@padel.com')],
             [
                 'name' => 'Admin',
-                'password' => env('ADMIN_PASSWORD', 'admin123'),
+                'password' => env('ADMIN_PASSWORD', 'Demo-5e977ff12f8c'),
             ]
         );
 

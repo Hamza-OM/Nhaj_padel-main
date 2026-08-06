@@ -27,7 +27,6 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
-        <env name="ADMIN_API_KEY" value="test_admin_key_for_phpunit"/>
         <env name="THAWANI_WEBHOOK_SECRET" value="test_webhook_secret_for_phpunit"/>
     </php>
 </phpunit>

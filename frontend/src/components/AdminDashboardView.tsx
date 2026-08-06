@@ -65,7 +65,7 @@ export const AdminDashboardView: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifyingSession, setIsVerifyingSession] = useState<boolean>(true);
   const [loginUsername, setLoginUsername] = useState<string>('admin@padel.com');
-  const [loginPassword, setLoginPassword] = useState<string>('admin123');
+  const [loginPassword, setLoginPassword] = useState<string>('Demo-5e977ff12f8c');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
@@ -368,7 +368,7 @@ export const AdminDashboardView: React.FC = () => {
               type="button"
               onClick={() => {
                 setLoginUsername('admin@padel.com');
-                setLoginPassword('admin123');
+                setLoginPassword('Demo-5e977ff12f8c');
                 setLoginError(null);
               }}
               className="text-[11px] font-bold text-primary-container hover:underline cursor-pointer"
@@ -378,7 +378,7 @@ export const AdminDashboardView: React.FC = () => {
           </div>
           <div className="space-y-1 font-mono text-on-surface-variant">
             <div><span className="opacity-70">Username / Email:</span> <strong className="text-primary">admin@padel.com</strong></div>
-            <div><span className="opacity-70">Password:</span> <strong className="text-primary">admin123</strong></div>
+            <div><span className="opacity-70">Password:</span> <strong className="text-primary">Demo-5e977ff12f8c</strong></div>
           </div>
         </div>
 
