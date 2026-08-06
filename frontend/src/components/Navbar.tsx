@@ -12,7 +12,8 @@ export const ROUTES = {
   rates: '/rates',
   info: '/info',
   myBooking: '/my-booking',
-  admin: '/admin'
+  admin: '/admin',
+  paymentResult: '/payment/result'
 } as const;
 
 export const Navbar: React.FC = () => {

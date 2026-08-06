@@ -45,16 +45,18 @@ export interface CartSlotItem {
 }
 
 export type PaymentMethod = 'arrival' | 'thawani';
-export type PaymentStatus = 'pending' | 'paid' | 'failed';
-export type BookingStatus = 'confirmed' | 'cancelled' | 'completed';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'expired';
+export type BookingStatus = 'pending_payment' | 'confirmed' | 'cancelled' | 'completed';
 
 export interface AssignedSlot {
   slotTime: string;
   endTime: string;
   date: string;
-  courtId: string;
-  courtName: string; // Saved internally for admin view & confirmation ticket
   price: number;
+  // Court identity is an internal allocation detail — the API only sends these
+  // on admin endpoints, never in customer-facing responses.
+  courtId?: string;
+  courtName?: string;
 }
 
 export interface Booking {
@@ -78,13 +80,17 @@ export interface Booking {
   createdAt: string;
 }
 
+/** Only what the browser needs in order to redirect to Thawani. */
 export interface ThawaniCheckoutResponse {
-  success: boolean;
   sessionId: string;
   paymentUrl: string;
-  mode: 'sandbox' | 'production';
-  rawApiResponse?: any;
-  thawaniPayloadSample?: any;
+}
+
+/** Server-verified outcome after Thawani returns the customer to us. */
+export interface PaymentResultResponse {
+  paymentStatus: PaymentStatus;
+  bookingStatus: BookingStatus;
+  booking: Booking;
 }
 
 export interface PricingBreakdown {

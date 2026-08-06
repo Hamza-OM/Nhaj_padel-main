@@ -10,6 +10,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Origin of the React SPA. Used to build the Thawani return URLs, so it must
+    // match the origin the customer actually browses from.
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     'locale' => env('APP_LOCALE', 'en'),

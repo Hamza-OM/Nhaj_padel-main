@@ -258,10 +258,8 @@ export const MyBookingView: React.FC = () => {
                       key={idx}
                       className="bg-surface-container-lowest p-3 rounded-xl border border-white/10 flex justify-between items-center text-xs"
                     >
-                      <span className="text-primary font-bold">{slot.courtName}</span>
-                      <span className="text-on-surface-variant font-mono">
-                        {slot.slotTime}–{slot.endTime} · {slot.date}
-                      </span>
+                      <span className="text-primary font-bold font-mono">{slot.slotTime}–{slot.endTime}</span>
+                      <span className="text-on-surface-variant font-mono">{slot.date}</span>
                     </div>
                   ))}
                 </div>

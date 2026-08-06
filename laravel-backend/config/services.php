@@ -21,6 +21,10 @@ return [
         'mode' => env('THAWANI_MODE', 'sandbox'),
         'secret_key' => env('THAWANI_SECRET_KEY'),
         'publishable_key' => env('THAWANI_PUBLISHABLE_KEY'),
+        // REST API root and hosted pay page. Leave unset to use the defaults for
+        // the selected mode (UAT: uatcheckout.thawani.om).
+        'base_url' => env('THAWANI_BASE_URL'),
+        'checkout_url' => env('THAWANI_CHECKOUT_URL'),
         // Separate secret Thawani issues for signing webhook payloads (Merchant Portal
         // > Webhook URL config) — distinct from the API secret key above. Optional: if
         // unset, incoming webhooks are processed without signature verification (fine

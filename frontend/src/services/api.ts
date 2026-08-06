@@ -6,7 +6,8 @@ import type {
   TimeSlotAvailability,
   PricingBreakdown,
   CartSlotItem,
-  ThawaniCheckoutResponse
+  ThawaniCheckoutResponse,
+  PaymentResultResponse
 } from '../types';
 
 const API_BASE = '/api';
@@ -87,28 +88,30 @@ export async function cancelCustomerBooking(
   return json;
 }
 
-export async function createThawaniSession(
-  bookingId: string,
-  totalAmount: number
-): Promise<ThawaniCheckoutResponse> {
+/**
+ * Asks Laravel to open a Thawani checkout session. No amount is sent — the
+ * server prices the booking itself, so the total can't be tampered with here.
+ */
+export async function createThawaniSession(bookingId: string): Promise<ThawaniCheckoutResponse> {
   const res = await fetch(`${API_BASE}/payments/thawani/create-session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ bookingId, totalAmount })
+    body: JSON.stringify({ bookingId })
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || 'Thawani session initialization failed');
   return json;
 }
 
-export async function verifyThawaniPayment(sessionId: string, status: 'paid' | 'failed'): Promise<{ success: boolean; booking: Booking }> {
-  const res = await fetch(`${API_BASE}/payments/thawani/verify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionId, status })
-  });
+/**
+ * Reads the *verified* payment outcome after Thawani sends the customer back.
+ * The landing URL proves nothing; Laravel re-checks with Thawani and this is
+ * the only answer the UI trusts.
+ */
+export async function fetchPaymentResult(reference: string): Promise<PaymentResultResponse> {
+  const res = await fetch(`${API_BASE}/payments/thawani/result?reference=${encodeURIComponent(reference)}`);
   const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Payment status verification failed');
+  if (!res.ok) throw new Error(json.error || 'Could not verify the payment');
   return json;
 }
 

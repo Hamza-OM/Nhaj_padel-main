@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\Court;
 use App\Models\CourtClosure;
+use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -335,7 +336,21 @@ class BookingService
                 'currency' => 'OMR',
                 'payment_method' => $paymentMethod,
                 'payment_status' => 'pending',
-                'booking_status' => 'confirmed',
+                // An online booking holds its slots but is NOT confirmed until
+                // Thawani tells us the money actually arrived. Pay-on-arrival is
+                // confirmed immediately — settlement happens at the counter.
+                'booking_status' => $paymentMethod === 'thawani' ? 'pending_payment' : 'confirmed',
+            ]);
+
+            // Every booking gets a payment record, so arrival and online bookings
+            // reconcile through the same table.
+            Payment::create([
+                'booking_id' => $booking->id,
+                'method' => $paymentMethod,
+                'status' => 'pending',
+                'amount' => $pricing['final_total'],
+                'currency' => 'OMR',
+                'provider' => $paymentMethod === 'thawani' ? 'thawani' : null,
             ]);
 
             // Create Items with assigned random court IDs

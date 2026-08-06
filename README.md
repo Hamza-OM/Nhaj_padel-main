@@ -119,6 +119,7 @@ The frontend is a single-page app with real, linkable URLs (React Router):
 | `/rates` | Courts & tiered rates |
 | `/info` | Club info, hours, amenities, FAQ |
 | `/my-booking` | Look up or cancel your own booking |
+| `/payment/result` | Where Thawani returns the customer; shows the verified outcome |
 | `/admin` | Admin dashboard |
 
 Any unknown path redirects to `/`.
@@ -138,8 +139,8 @@ All routes are prefixed with `/api`.
 | `POST` | `/api/bookings` | Place a booking |
 | `GET` | `/api/bookings/lookup?reference=&phone=` | Retrieve own booking (rate limited) |
 | `POST` | `/api/bookings/cancel` | Self-service cancel, 6 h policy (rate limited) |
-| `POST` | `/api/payments/thawani/create-session` | Initiate Thawani checkout |
-| `POST` | `/api/payments/thawani/verify` | Verify / simulate payment result |
+| `POST` | `/api/payments/thawani/create-session` | Open a real Thawani checkout session (`{bookingId}` only — amount is server-side) |
+| `GET` | `/api/payments/thawani/result?reference=` | Server-verified payment outcome after returning from Thawani |
 
 ### Admin
 
@@ -168,17 +169,95 @@ All routes are prefixed with `/api`.
 
 ---
 
-## 💳 Thawani Payment Gateway (Sandbox)
+## 💳 Thawani Payment Gateway (UAT / Sandbox)
 
-Configure in `laravel-backend/.env`:
+This is a **real** integration against Thawani's UAT environment — the customer is
+redirected to Thawani's hosted checkout and the payment result is verified
+server-side. There is no simulator in the payment path.
+
+### Configuration
+
+Set these in `laravel-backend/.env` (never in the frontend, never committed):
 
 ```
-THAWANI_MODE=sandbox
-THAWANI_SECRET_KEY=rQ0w...
-THAWANI_PUBLISHABLE_KEY=HG9w...
+THAWANI_MODE=uat
+THAWANI_SECRET_KEY=your_sandbox_secret_key
+THAWANI_PUBLISHABLE_KEY=your_sandbox_publishable_key
+THAWANI_BASE_URL=https://uatcheckout.thawani.om/api/v1
+THAWANI_CHECKOUT_URL=https://uatcheckout.thawani.om/pay
+THAWANI_WEBHOOK_SECRET=          # from Merchant Portal > Webhook config
+FRONTEND_URL=http://localhost:5173   # must match the SPA origin — used for return URLs
 ```
 
-The platform supports simulating **Payment Success** and **Payment Cancellation** via the sandbox modal in the UI.
+Credentials come from the Thawani merchant portal. The **secret key is
+backend-only**: it is never sent to React, never included in an API response,
+and never logged.
+
+### Checkout flow
+
+```
+Customer picks slots  →  POST /api/bookings
+                             ↓  server re-checks availability in a locked
+                                transaction, prices the booking, assigns a court
+                         booking = pending_payment, payment = pending
+                             ↓
+                         POST /api/payments/thawani/create-session
+                             ↓  Laravel → Thawani  (amount from the booking, in baisa)
+                         browser redirects to Thawani hosted checkout
+                             ↓
+                    customer pays / cancels on Thawani
+                             ↓
+              return to /payment/result?ref=PAD-XXXXX
+                             ↓  Laravel calls Thawani's Retrieve Session
+                        booking = confirmed | cancelled   payment = paid | cancelled | expired
+```
+
+The return URL is **not** proof of payment. Both it and the webhook re-query
+Thawani before anything is written.
+
+### Statuses
+
+| Booking | Meaning |
+|---|---|
+| `pending_payment` | Slots held, awaiting online payment |
+| `confirmed` | Paid online, or booked as pay-on-arrival |
+| `cancelled` | Payment cancelled/expired, or cancelled by customer/admin |
+| `completed` | Derived — a confirmed booking whose date has passed |
+
+| Payment | Meaning |
+|---|---|
+| `pending` | Created, not settled |
+| `paid` | Confirmed by Thawani |
+| `failed` / `cancelled` / `expired` | Terminal, booking not confirmed |
+
+`unpaid` is Thawani's **initial** session state, not a failure — it maps to
+`pending` and never cancels a booking.
+
+### Webhook
+
+`POST /api/webhooks/thawani` verifies an HMAC-SHA256 signature
+(`HMAC(body + '-' + timestamp, THAWANI_WEBHOOK_SECRET)`, compared against the
+`thawani-signature` header). Handled events: `checkout.completed`,
+`payment.succeeded`, `payment.failed`; `checkout.created` and `payment.pending`
+are acknowledged as no-ops. Processing is idempotent — a replayed delivery
+cannot double-settle a payment or duplicate a booking.
+
+> Thawani cannot reach `localhost`. To exercise webhooks locally, expose the
+> backend with a tunnel (e.g. ngrok) and register that URL in the portal.
+> Leaving `THAWANI_WEBHOOK_SECRET` blank skips signature verification, which is
+> acceptable only in local development.
+
+### Testing
+
+```bash
+cd laravel-backend && vendor/bin/phpunit
+```
+
+Covers pay-on-arrival, session creation, gateway failure, duplicate
+"Confirm & Pay", paid/cancelled/expired/unpaid outcomes, webhook signature
+rejection, duplicate webhooks, price tampering, court non-disclosure, and the
+availability race condition. Thawani calls are stubbed with `Http::fake()`, so
+the suite never touches the network.
 
 ---
 

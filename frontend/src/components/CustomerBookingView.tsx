@@ -13,24 +13,22 @@ import {
   Phone,
   Tag,
   AlertCircle,
-  Ticket
+  Ticket,
+  Loader2
 } from 'lucide-react';
 import type {
   TimeSlotAvailability,
   CartSlotItem,
   PricingBreakdown,
   Booking,
-  PaymentMethod,
-  ThawaniCheckoutResponse
+  PaymentMethod
 } from '../types';
 import {
   fetchSlotAvailability,
   calculatePricingPreview,
   createBookingTransaction,
-  createThawaniSession,
-  verifyThawaniPayment
+  createThawaniSession
 } from '../services/api';
-import { ThawaniSandboxModal } from './ThawaniSandboxModal';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
 import { ROUTES } from './Navbar';
@@ -76,13 +74,8 @@ export const CustomerBookingView: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
 
-  // Thawani Sandbox Modal
-  const [thawaniModalOpen, setThawaniModalOpen] = useState<boolean>(false);
-  const [thawaniSessionData, setThawaniSessionData] = useState<ThawaniCheckoutResponse | null>(null);
-  // Holds the just-created booking while the Thawani modal is open, so the final
-  // confirmation ticket only appears once payment is actually simulated (no flash of
-  // the ticket behind the payment modal).
-  const [pendingThawaniBooking, setPendingThawaniBooking] = useState<Booking | null>(null);
+  // True while the browser is being handed over to Thawani's hosted checkout.
+  const [redirectingToThawani, setRedirectingToThawani] = useState<boolean>(false);
 
   // Generate 14-day date picker options
   const dateOptions = Array.from({ length: 14 }).map((_, i) => {
@@ -225,31 +218,20 @@ export const CustomerBookingView: React.FC = () => {
       loadSlots(selectedDate);
 
       if (paymentMethod === 'thawani') {
-        // Don't show the confirmation ticket yet — hold the booking aside and let the
-        // Thawani modal own the screen until payment is actually simulated.
-        setPendingThawaniBooking(res.booking);
-        const thawaniSession = await createThawaniSession(res.booking.id, res.booking.totalAmount);
-        setThawaniSessionData(thawaniSession);
-        setThawaniModalOpen(true);
-      } else {
-        setConfirmedBooking(res.booking);
+        // Hand the customer over to Thawani's hosted checkout. The booking is
+        // held as pending_payment until Thawani tells our backend it was paid —
+        // leaving this page is not, and must never be, proof of payment.
+        const session = await createThawaniSession(res.booking.id);
+        setRedirectingToThawani(true);
+        window.location.href = session.paymentUrl;
+        return;
       }
+
+      setConfirmedBooking(res.booking);
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to confirm booking');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleThawaniComplete = async (status: 'paid' | 'failed') => {
-    if (!thawaniSessionData) return;
-    try {
-      const res = await verifyThawaniPayment(thawaniSessionData.sessionId, status);
-      setConfirmedBooking(res.booking);
-      setThawaniModalOpen(false);
-      setPendingThawaniBooking(null);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Payment verification failed');
     }
   };
 
@@ -742,7 +724,7 @@ export const CustomerBookingView: React.FC = () => {
 
       {/* Confirmation Modal Ticket */}
       <AnimatePresence>
-        {confirmedBooking && !thawaniModalOpen && (
+        {confirmedBooking && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -796,23 +778,17 @@ export const CustomerBookingView: React.FC = () => {
                   <span className="text-on-surface capitalize">{confirmedBooking.paymentMethod}</span>
                 </div>
 
-                {confirmedBooking.paymentStatus === 'failed' ? (
-                  <div className="pt-2 border-t border-white/10 font-sans text-on-surface-variant">
-                    {lang === 'ar' ? 'تم إلغاء الملاعب المخصصة سابقاً.' : 'Previously allocated courts have been released.'}
-                  </div>
-                ) : (
-                  <div className="pt-2 border-t border-white/10 space-y-1.5 font-sans">
-                    <span className="text-on-surface-variant text-[11px] block font-semibold">{t.assignedCourts}:</span>
-                    {confirmedBooking.assignedSlots.map((slot, idx) => (
-                      <div key={idx} className="bg-surface-container-lowest p-2.5 rounded-xl border border-white/10 flex justify-between text-xs">
-                        <span className="text-primary font-bold">{slot.courtName}</span>
-                        <span className="text-on-surface-variant font-mono">
-                          {slot.slotTime} ({slot.date})
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* Session times only — which physical court you're allocated is
+                    handled internally and deliberately not shown. */}
+                <div className="pt-2 border-t border-white/10 space-y-1.5 font-sans">
+                  <span className="text-on-surface-variant text-[11px] block font-semibold">{t.yourSessions}:</span>
+                  {confirmedBooking.assignedSlots.map((slot, idx) => (
+                    <div key={idx} className="bg-surface-container-lowest p-2.5 rounded-xl border border-white/10 flex justify-between text-xs">
+                      <span className="text-primary font-bold font-mono">{slot.slotTime}–{slot.endTime}</span>
+                      <span className="text-on-surface-variant font-mono">{slot.date}</span>
+                    </div>
+                  ))}
+                </div>
 
                 <div className="border-t border-white/10 pt-3 flex justify-between text-sm font-bold font-sans">
                   <span className="text-on-surface-variant">{t.totalAmount}:</span>
@@ -900,17 +876,23 @@ export const CustomerBookingView: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Thawani Payment Gateway Modal */}
-      <ThawaniSandboxModal
-        isOpen={thawaniModalOpen}
-        booking={pendingThawaniBooking}
-        thawaniSession={thawaniSessionData}
-        onClose={() => {
-          setThawaniModalOpen(false);
-          setPendingThawaniBooking(null);
-        }}
-        onPaymentComplete={handleThawaniComplete}
-      />
+      {/* Handing over to Thawani's hosted checkout */}
+      <AnimatePresence>
+        {redirectingToThawani && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface/80 backdrop-blur-2xl"
+          >
+            <div className="glass-panel rounded-3xl p-10 text-center space-y-4 border-t border-t-white/15 max-w-sm">
+              <Loader2 className="w-10 h-10 text-primary-container animate-spin mx-auto" />
+              <h3 className="font-heading text-2xl font-bold text-primary">{t.redirectingTitle}</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">{t.redirectingBody}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

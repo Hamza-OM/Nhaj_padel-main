@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\BookingResource;
+use App\Http\Resources\AdminBookingResource;
 use App\Models\Booking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -58,7 +58,7 @@ class AdminBookingController extends Controller
 
         $bookings = $query->orderBy('created_at', 'desc')->get();
 
-        return response()->json(BookingResource::collection($bookings));
+        return response()->json(AdminBookingResource::collection($bookings));
     }
 
     /**
@@ -75,7 +75,7 @@ class AdminBookingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Booking cancelled successfully',
-            'booking' => new BookingResource($booking->load('items.court')),
+            'booking' => new AdminBookingResource($booking->load('items.court')),
         ]);
     }
 }

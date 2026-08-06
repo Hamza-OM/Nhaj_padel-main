@@ -37,11 +37,14 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/bookings/cancel', [CustomerBookingController::class, 'cancel']);
 });
 
-// POST /api/payments/thawani/create-session  { bookingId, totalAmount }
+// POST /api/payments/thawani/create-session  { bookingId }
+// Amount is never taken from the client — it comes from the priced booking.
 Route::post('/payments/thawani/create-session', [ThawaniPaymentController::class, 'createSession']);
 
-// POST /api/payments/thawani/verify  { sessionId, status }
-Route::post('/payments/thawani/verify', [ThawaniPaymentController::class, 'verify']);
+// GET /api/payments/thawani/result?reference=PAD-XXXXX
+// Where the customer lands after Thawani. Status is verified server-side.
+Route::get('/payments/thawani/result', [ThawaniPaymentController::class, 'result'])
+    ->middleware('throttle:20,1');
 
 // ── Admin Routes ─────────────────────────────────────────────────────────────
 

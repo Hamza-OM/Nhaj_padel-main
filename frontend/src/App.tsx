@@ -8,6 +8,7 @@ import { AdminDashboardView } from './components/AdminDashboardView';
 import { CourtsAndRatesView } from './components/CourtsAndRatesView';
 import { ClubInfoView } from './components/ClubInfoView';
 import { MyBookingView } from './components/MyBookingView';
+import { PaymentResultView } from './components/PaymentResultView';
 import { Footer } from './components/Footer';
 
 // Three.js pulls in a large chunk — load it async so it never blocks first paint
@@ -60,6 +61,7 @@ export default function App() {
                   <Route path={ROUTES.rates} element={<CourtsAndRatesView />} />
                   <Route path={ROUTES.info} element={<ClubInfoView />} />
                   <Route path={ROUTES.myBooking} element={<MyBookingView />} />
+                  <Route path={ROUTES.paymentResult} element={<PaymentResultView />} />
                   <Route path={ROUTES.admin} element={<AdminDashboardView />} />
                   {/* Unknown URL — send people home rather than a blank screen */}
                   <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

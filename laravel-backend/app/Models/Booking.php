@@ -38,4 +38,15 @@ class Booking extends Model
     {
         return $this->hasMany(BookingItem::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /** The attempt currently in play — most recent payment row. */
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
+    }
 }
