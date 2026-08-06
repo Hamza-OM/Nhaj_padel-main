@@ -74,8 +74,6 @@ export interface Booking {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   bookingStatus: BookingStatus;
-  thawaniSessionId?: string;
-  thawaniPaymentUrl?: string;
   assignedSlots: AssignedSlot[];
   createdAt: string;
 }

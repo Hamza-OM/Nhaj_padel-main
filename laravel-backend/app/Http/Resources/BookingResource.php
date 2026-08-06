@@ -45,8 +45,6 @@ class BookingResource extends JsonResource
             'paymentMethod' => $this->payment_method,
             'paymentStatus' => $this->payment_status,
             'bookingStatus' => $bookingStatus,
-            'thawaniSessionId' => $this->thawani_session_id,
-            'thawaniPaymentUrl' => $this->thawani_payment_url,
             'assignedSlots' => $this->whenLoaded('items', function () {
                 return $this->items->map(function ($item) {
                     $slot = [

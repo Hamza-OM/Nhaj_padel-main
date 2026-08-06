@@ -23,8 +23,6 @@ class Booking extends Model
         'payment_method',
         'payment_status',
         'booking_status',
-        'thawani_session_id',
-        'thawani_payment_url',
     ];
 
     protected $casts = [

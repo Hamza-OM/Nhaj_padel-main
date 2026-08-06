@@ -120,11 +120,6 @@ class ThawaniPaymentController extends Controller
             'metadata' => ['checkout_created_at' => now()->toIso8601String()],
         ]);
 
-        $booking->update([
-            'thawani_session_id' => $session['session_id'],
-            'thawani_payment_url' => $session['payment_url'],
-        ]);
-
         return response()->json([
             'sessionId' => $session['session_id'],
             'paymentUrl' => $session['payment_url'],
