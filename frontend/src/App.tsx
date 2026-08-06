@@ -53,8 +53,31 @@ function ScrollToTop() {
   return null;
 }
 
+// The hero photo is only ever displayed on the home route, but a static
+// <link rel="preload"> in index.html would apply to every route in this SPA
+// — every other page was fetching a 296 KB image at high priority that it
+// never renders, competing with the actual JS bundle for early bandwidth.
+// Managed here instead so only the home route pays for it.
+function useHomeHeroPreload(isHome: boolean) {
+  useEffect(() => {
+    if (!isHome) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = '/images/padel-hero-2.jpg';
+    link.fetchPriority = 'high';
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, [isHome]);
+}
+
 export default function App() {
   const location = useLocation();
+  useHomeHeroPreload(location.pathname === ROUTES.home);
 
   return (
     <MotionConfig reducedMotion="user">

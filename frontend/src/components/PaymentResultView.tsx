@@ -77,10 +77,10 @@ export const PaymentResultView: React.FC = () => {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.32 }}
-        className="glass-panel rounded-3xl border-t border-t-white/15 overflow-hidden"
+        className="glass-panel rounded-3xl border-t border-t-white/15 overflow-hidden min-h-[420px]"
       >
         {isLoading ? (
-          <div className="p-12 flex flex-col items-center gap-4 text-center">
+          <div className="p-12 h-[420px] flex flex-col items-center justify-center gap-4 text-center">
             <Loader2 className="w-8 h-8 text-primary-container animate-spin" />
             <p className="text-sm text-on-surface-variant">{t.payResultVerifying}</p>
           </div>
