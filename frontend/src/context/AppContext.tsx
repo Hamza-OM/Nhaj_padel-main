@@ -14,8 +14,20 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const LANG_STORAGE_KEY = 'padel_lang';
+
+function getInitialLang(): Language {
+  const stored = localStorage.getItem(LANG_STORAGE_KEY);
+  return stored === 'ar' || stored === 'en' ? stored : 'en';
+}
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [lang, setLang] = useState<Language>('en');
+  const [lang, setLangState] = useState<Language>(getInitialLang);
+
+  const setLang = (next: Language) => {
+    localStorage.setItem(LANG_STORAGE_KEY, next);
+    setLangState(next);
+  };
   // The "Riverside Padel" glass/neon design system is dark-native — there's no
   // spec'd light variant, so dark is the fixed theme (no toggle exposed in the UI).
   const [theme, setTheme] = useState<Theme>('dark');
