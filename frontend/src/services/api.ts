@@ -80,7 +80,9 @@ export async function fetchSlotAvailability(dateStr: string): Promise<{
   totalCourtsCount: number;
   slots: TimeSlotAvailability[];
 }> {
-  const res = await fetch(`${API_BASE}/slots/availability?date=${encodeURIComponent(dateStr)}`);
+  const res = await fetch(`${API_BASE}/slots/availability?date=${encodeURIComponent(dateStr)}`, {
+    headers: { Accept: 'application/json' }
+  });
   if (!res.ok) throw new Error('Failed to load slot availability');
   return res.json();
 }
@@ -88,7 +90,7 @@ export async function fetchSlotAvailability(dateStr: string): Promise<{
 export async function calculatePricingPreview(totalHours: number): Promise<PricingBreakdown> {
   const res = await fetch(`${API_BASE}/pricing/calculate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ totalHours })
   });
   if (!res.ok) throw new Error('Failed to calculate pricing breakdown');
@@ -104,12 +106,14 @@ export async function createBookingTransaction(data: {
 }): Promise<{ success: boolean; message: string; booking: Booking }> {
   const res = await fetch(`${API_BASE}/bookings`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(data)
   });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Failed to place booking');
-  return json;
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || 'Failed to place booking');
+  }
+  return res.json();
 }
 
 export async function lookupBooking(
@@ -117,10 +121,14 @@ export async function lookupBooking(
   phone: string
 ): Promise<{ success: boolean; booking: Booking; cancellationWindowHours: number }> {
   const query = new URLSearchParams({ reference, phone });
-  const res = await fetch(`${API_BASE}/bookings/lookup?${query.toString()}`);
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Could not find that booking');
-  return json;
+  const res = await fetch(`${API_BASE}/bookings/lookup?${query.toString()}`, {
+    headers: { Accept: 'application/json' }
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || 'Could not find that booking');
+  }
+  return res.json();
 }
 
 export async function cancelCustomerBooking(
@@ -129,12 +137,14 @@ export async function cancelCustomerBooking(
 ): Promise<{ success: boolean; message: string; booking: Booking }> {
   const res = await fetch(`${API_BASE}/bookings/cancel`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ reference, phone })
   });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Could not cancel this booking');
-  return json;
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || 'Could not cancel this booking');
+  }
+  return res.json();
 }
 
 /**
@@ -144,12 +154,14 @@ export async function cancelCustomerBooking(
 export async function createThawaniSession(bookingId: string): Promise<ThawaniCheckoutResponse> {
   const res = await fetch(`${API_BASE}/payments/thawani/create-session`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ bookingId })
   });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Thawani session initialization failed');
-  return json;
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || 'Thawani session initialization failed');
+  }
+  return res.json();
 }
 
 /**
@@ -158,10 +170,14 @@ export async function createThawaniSession(bookingId: string): Promise<ThawaniCh
  * the only answer the UI trusts.
  */
 export async function fetchPaymentResult(reference: string): Promise<PaymentResultResponse> {
-  const res = await fetch(`${API_BASE}/payments/thawani/result?reference=${encodeURIComponent(reference)}`);
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Could not verify the payment');
-  return json;
+  const res = await fetch(`${API_BASE}/payments/thawani/result?reference=${encodeURIComponent(reference)}`, {
+    headers: { Accept: 'application/json' }
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || 'Could not verify the payment');
+  }
+  return res.json();
 }
 
 // Admin APIs
