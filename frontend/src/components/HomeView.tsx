@@ -54,7 +54,7 @@ export const HomeView: React.FC = () => {
             before the old background-image version was even requested. */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/padel-hero.jpg"
+            src="/images/padel-hero-2.jpg"
             alt=""
             fetchPriority="high"
             decoding="async"
