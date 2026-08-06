@@ -11,19 +11,68 @@ import type {
 } from '../types';
 
 const API_BASE = '/api';
-const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY as string | undefined;
 
-// Wraps fetch for /api/admin/* routes, injecting the shared X-Admin-Key header
-// the backend's VerifyAdminKey middleware requires.
-function adminFetch(path: string, options: RequestInit = {}): Promise<Response> {
-  return fetch(`${API_BASE}${path}`, {
+// The admin session token (Sanctum personal access token) lives only in this
+// tab's sessionStorage — never in a build-time env var, never shipped to
+// every visitor. It only exists here after a real POST /admin/login with a
+// real password succeeds.
+const ADMIN_TOKEN_KEY = 'padel_admin_token';
+
+export function getAdminToken(): string | null {
+  return sessionStorage.getItem(ADMIN_TOKEN_KEY);
+}
+
+function setAdminToken(token: string): void {
+  sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+}
+
+export function clearAdminToken(): void {
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+}
+
+// Wraps fetch for /api/admin/* routes, attaching the session token as a
+// bearer token. On a 401 (missing/expired/revoked token) it clears the
+// stored token so the UI can detect that and fall back to the login screen.
+async function adminFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  const token = getAdminToken();
+
+  const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
+      Accept: 'application/json',
       ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(ADMIN_API_KEY ? { 'X-Admin-Key': ADMIN_API_KEY } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers
     }
   });
+
+  if (res.status === 401) clearAdminToken();
+
+  return res;
+}
+
+export async function adminLogin(email: string, password: string): Promise<{ name: string; email: string }> {
+  const res = await fetch(`${API_BASE}/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Login failed');
+  setAdminToken(json.token);
+  return json.user;
+}
+
+export async function adminLogout(): Promise<void> {
+  await adminFetch('/admin/logout', { method: 'POST' }).catch(() => {});
+  clearAdminToken();
+}
+
+/** Verifies a stored token is still valid — used on page load/refresh. */
+export async function verifyAdminSession(): Promise<{ name: string; email: string }> {
+  const res = await adminFetch('/admin/me');
+  if (!res.ok) throw new Error('Session expired');
+  return res.json();
 }
 
 export async function fetchSlotAvailability(dateStr: string): Promise<{

@@ -25,15 +25,16 @@ A full-stack web application for managing padel court bookings, featuring an **A
 
 | Field | Value |
 |---|---|
-| Username | `admin@padel.com` |
+| Email | `admin@padel.com` |
 | Password | `admin123` |
 
-Logging into `/admin` with these checks a hardcoded value in the frontend — that
-gate alone is **not** what protects the admin API. Every `/api/admin/*` request
-also requires an `X-Admin-Key` header matching `ADMIN_API_KEY` in the backend's
-`.env`, which the frontend attaches automatically once its own `VITE_ADMIN_API_KEY`
-is set to the same value. **Both `.env` files need this key configured before the
-admin dashboard will work locally** — see step 3 under Quick Start below.
+This account is created by the database seeder (`php artisan migrate --seed`) with
+a properly hashed password — logging in calls `POST /api/admin/login`, which the
+backend verifies against that hash and, on success, issues a Sanctum session token.
+That token (not a login-screen check, and not any secret baked into the frontend
+build) is what every `/api/admin/*` request is actually authorized by. Change
+`ADMIN_EMAIL` / `ADMIN_PASSWORD` in `laravel-backend/.env` before deploying this
+anywhere beyond local dev.
 
 ---
 
@@ -77,26 +78,7 @@ npm run dev
 The app runs on **http://localhost:5173**.  
 `vite.config.ts` proxies all `/api/*` requests to `http://127.0.0.1:8000`, so no CORS issues during development.
 
-### 3 — Admin API key (required — the admin dashboard will 401 without this)
-
-The admin API is protected by a shared key, independent of the login screen. Generate
-one and put the **same value** in both `.env` files:
-
-```bash
-php -r "echo bin2hex(random_bytes(32));"
-```
-
-```
-# laravel-backend/.env
-ADMIN_API_KEY=<paste the generated value here>
-```
-
-```
-# frontend/.env
-VITE_ADMIN_API_KEY=<the same value>
-```
-
-Restart both dev servers after setting these (Vite only reads `.env` on startup).
+Nothing else to configure — `/admin` is ready to use with the seeded credentials above.
 
 ---
 
@@ -171,11 +153,16 @@ All routes are prefixed with `/api`.
 
 ### Admin
 
-> All `/api/admin/*` routes require an `X-Admin-Key` header matching `ADMIN_API_KEY`
-> in `laravel-backend/.env`. Requests without it get a `401`.
+> All `/api/admin/*` routes (except `/admin/login`) require a Sanctum bearer token:
+> `Authorization: Bearer <token>`, obtained from `POST /admin/login` and sent
+> automatically by the frontend after a real login. Requests without a valid
+> token get a `401`.
 
 | Method | Path | Description |
 |---|---|---|
+| `POST` | `/api/admin/login` | `{email, password}` → `{token, user}` (rate limited) |
+| `POST` | `/api/admin/logout` | Revoke the current session token |
+| `GET` | `/api/admin/me` | Confirm the current token is still valid |
 | `GET` | `/api/admin/courts` | List courts |
 | `POST` | `/api/admin/courts` | Add court |
 | `PUT` | `/api/admin/courts/{id}` | Update court |
@@ -311,5 +298,5 @@ the suite never touches the network.
    RewriteRule . /index.html [L]
    ```
 4. Set `APP_ENV=production`, `APP_DEBUG=false`, and run `php artisan config:cache`.
-5. Set a strong `ADMIN_API_KEY` in `laravel-backend/.env` and the matching
-   `VITE_ADMIN_API_KEY` in the frontend build environment.
+5. Set a real `ADMIN_EMAIL` / strong `ADMIN_PASSWORD` in `laravel-backend/.env`
+   before running the seeder — these become the only admin login.

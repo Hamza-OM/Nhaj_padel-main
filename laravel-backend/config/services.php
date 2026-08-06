@@ -32,15 +32,4 @@ return [
         'webhook_secret' => env('THAWANI_WEBHOOK_SECRET'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin API Access
-    |--------------------------------------------------------------------------
-    | Shared secret checked by VerifyAdminKey middleware against the X-Admin-Key
-    | header on every /api/admin/* request.
-    */
-    'admin' => [
-        'api_key' => env('ADMIN_API_KEY'),
-    ],
-
 ];

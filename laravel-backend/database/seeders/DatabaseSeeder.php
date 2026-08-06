@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Court;
 use App\Models\TieredPricingRule;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // The one admin account for the dashboard. Email/password are
+        // overridable via .env for real deployments; the defaults match the
+        // demo credentials documented in the README. Password is hashed via
+        // User's 'password' => 'hashed' cast — never stored in plaintext.
+        User::firstOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@padel.com')],
+            [
+                'name' => 'Admin',
+                'password' => env('ADMIN_PASSWORD', 'admin123'),
+            ]
+        );
+
         if (Court::count() === 0) {
             for ($i = 1; $i <= 8; $i++) {
                 Court::create([

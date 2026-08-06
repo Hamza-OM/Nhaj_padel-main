@@ -30,9 +30,8 @@ app/
 │   │   ├── CustomerBookingController.php  ← availability, pricing, booking
 │   │   ├── AdminCourtController.php       ← courts, closures, pricing rules
 │   │   ├── AdminBookingController.php     ← booking list, cancel
-│   │   └── ThawaniPaymentController.php   ← checkout session, result, webhook
-│   ├── Middleware/
-│   │   └── VerifyAdminKey.php             ← X-Admin-Key guard on /api/admin/*
+│   │   ├── ThawaniPaymentController.php   ← checkout session, result, webhook
+│   │   └── AdminAuthController.php        ← login/logout/me (Sanctum tokens)
 │   └── Resources/                         ← JSON transformers (snake_case → camelCase)
 │       ├── CourtResource.php
 │       ├── CourtClosureResource.php
@@ -56,6 +55,12 @@ app/
 
 ## Key Design Decisions
 
+- **Real admin authentication**: `/api/admin/*` (except `/admin/login`) requires a
+  Sanctum bearer token issued by a server-side password check against a hashed
+  `users` row — not a client-side login screen, and not a static key baked into
+  the frontend build (that was this project's one fixed security finding: a
+  shared secret shipped in `import.meta.env` is readable by anyone, logged in or
+  not). The token lives only in `sessionStorage` for that tab.
 - **Anonymous court pooling**: `/api/slots/availability` returns counts only, and
   `BookingResource` omits `courtId`/`courtName` entirely. The assigned court is an
   internal allocation detail — only `AdminBookingResource` exposes it.

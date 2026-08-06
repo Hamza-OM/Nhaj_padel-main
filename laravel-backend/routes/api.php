@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminBookingController;
 use App\Http\Controllers\AdminCourtController;
 use App\Http\Controllers\CustomerBookingController;
@@ -46,9 +47,19 @@ Route::post('/payments/thawani/create-session', [ThawaniPaymentController::class
 Route::get('/payments/thawani/result', [ThawaniPaymentController::class, 'result'])
     ->middleware('throttle:20,1');
 
-// ── Admin Routes ─────────────────────────────────────────────────────────────
+// ── Admin Auth ───────────────────────────────────────────────────────────────
 
-Route::prefix('admin')->middleware('admin.key')->group(function () {
+// POST /api/admin/login  { email, password } — throttled against brute force,
+// since this is now the real authentication boundary for the admin API.
+Route::post('/admin/login', [AdminAuthController::class, 'login'])
+    ->middleware('throttle:5,1');
+
+// ── Admin Routes (require a valid Sanctum token from /admin/login) ─────────────
+
+Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
+    Route::get('/me', [AdminAuthController::class, 'me']);
 
     // Courts CRUD
     Route::get('/courts',              [AdminCourtController::class, 'index']);

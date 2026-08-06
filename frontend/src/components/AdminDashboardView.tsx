@@ -24,7 +24,11 @@ import {
   fetchAdminPricingRules,
   createAdminPricingRule,
   fetchAdminBookings,
-  cancelAdminBooking
+  cancelAdminBooking,
+  adminLogin,
+  adminLogout,
+  verifyAdminSession,
+  getAdminToken
 } from '../services/api';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
@@ -54,30 +58,55 @@ export const AdminDashboardView: React.FC = () => {
   const t = translations[lang];
 
   // Admin Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('padel_admin_auth') === 'true';
-  });
+  // isVerifyingSession covers the brief window on mount where a stored token
+  // (from an earlier login in this tab) is being checked against the server
+  // before deciding whether to show the dashboard or the login screen — this
+  // avoids trusting a token that may have expired or been revoked.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isVerifyingSession, setIsVerifyingSession] = useState<boolean>(true);
   const [loginUsername, setLoginUsername] = useState<string>('admin@padel.com');
   const [loginPassword, setLoginPassword] = useState<string>('admin123');
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
   const [activeTab, setActiveTab] = useState<'bookings' | 'courts' | 'closures' | 'pricing'>('bookings');
 
-  // Handle Login
-  const handleLogin = (e: React.FormEvent) => {
+  // On mount, if this tab already has a session token, confirm the server
+  // still honors it (rather than trusting sessionStorage's mere presence).
+  useEffect(() => {
+    if (!getAdminToken()) {
+      setIsVerifyingSession(false);
+      return;
+    }
+    verifyAdminSession()
+      .then(() => setIsAuthenticated(true))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setIsVerifyingSession(false));
+  }, []);
+
+  // Handle Login — a real server round-trip against a hashed password, not a
+  // client-side string comparison.
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
-    if ((loginUsername.trim().toLowerCase() === 'admin' || loginUsername.trim().toLowerCase() === 'admin@padel.com') && loginPassword === 'admin123') {
+    setIsLoggingIn(true);
+    try {
+      await adminLogin(loginUsername.trim(), loginPassword);
       setIsAuthenticated(true);
-      sessionStorage.setItem('padel_admin_auth', 'true');
-    } else {
-      setLoginError(lang === 'ar' ? 'اسم المستخدم أو كلمة المرور غير صحيحة.' : 'Invalid username or password. Use admin@padel.com / admin123');
+    } catch (err) {
+      setLoginError(
+        err instanceof Error
+          ? err.message
+          : lang === 'ar' ? 'اسم المستخدم أو كلمة المرور غير صحيحة.' : 'Invalid username or password.'
+      );
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleLogout = () => {
+    adminLogout();
     setIsAuthenticated(false);
-    sessionStorage.removeItem('padel_admin_auth');
   };
 
   // Data States
@@ -132,14 +161,19 @@ export const AdminDashboardView: React.FC = () => {
       setBookings(bRes);
     } catch (err) {
       console.error(err);
+      // adminFetch already cleared the stored token if this was a 401 —
+      // reflect that by bouncing back to the login screen instead of
+      // sitting on a dashboard that can no longer actually load anything.
+      if (!getAdminToken()) setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     loadData();
-  }, [filterCourtId, filterDate, filterStatus, filterPayment, filterPhone]);
+  }, [isAuthenticated, filterCourtId, filterDate, filterStatus, filterPayment, filterPhone]);
 
   // Handlers for Court
   const handleSaveCourt = async (e: React.FormEvent) => {
@@ -296,6 +330,14 @@ export const AdminDashboardView: React.FC = () => {
     return true;
   });
 
+  if (isVerifyingSession) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <RefreshCw className="w-6 h-6 text-primary-container animate-spin" />
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <motion.div
@@ -377,12 +419,15 @@ export const AdminDashboardView: React.FC = () => {
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={!isLoggingIn ? { scale: 1.01 } : undefined}
+            whileTap={!isLoggingIn ? { scale: 0.98 } : undefined}
             type="submit"
-            className="w-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-3 px-4 rounded-xl transition-colors cursor-pointer mt-2 neon-glow"
+            disabled={isLoggingIn}
+            className="w-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-3 px-4 rounded-xl transition-colors cursor-pointer mt-2 neon-glow disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {lang === 'ar' ? 'تسجيل الدخول' : 'Sign In to Admin Portal'}
+            {isLoggingIn
+              ? (lang === 'ar' ? 'جارٍ تسجيل الدخول...' : 'Signing In...')
+              : (lang === 'ar' ? 'تسجيل الدخول' : 'Sign In to Admin Portal')}
           </motion.button>
         </form>
       </motion.div>
