@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Models\User;
 use App\Services\BookingService;
 use Carbon\Carbon;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ThawaniPaymentTest extends TestCase
@@ -177,6 +179,21 @@ class ThawaniPaymentTest extends TestCase
         $this->assertSame('paid', $booking->payment_status);
         $this->assertSame('confirmed', $booking->booking_status);
         $this->assertSame('paid', $booking->payments()->first()->status);
+    }
+
+    public function test_payment_result_never_exposes_customer_pii(): void
+    {
+        // Anyone with just the reference code (it ends up in browser history and
+        // redirect URLs) can hit this endpoint — unlike /bookings/lookup, it never
+        // verifies phone ownership, so it must never return PII.
+        $booking = $this->createOnlineBookingWithSession('paid');
+
+        $response = $this->getJson('/api/payments/thawani/result?reference='.$booking->reference_code)
+            ->assertOk();
+
+        $this->assertSame('', $response->json('booking.customerPhone'));
+        $this->assertNull($response->json('booking.customerName'));
+        $this->assertNull($response->json('booking.customerEmail'));
     }
 
     public function test_cancelled_payment_does_not_confirm_the_booking(): void
@@ -348,8 +365,10 @@ class ThawaniPaymentTest extends TestCase
         // But the slot times the customer needs are still there.
         $this->assertArrayHasKey('slotTime', $response->json('booking.assignedSlots.0'));
 
-        // Admin, by contrast, does get the court.
-        $adminBody = $this->getJson('/api/admin/bookings', ['X-Admin-Key' => config('services.admin.api_key')])
+        // Admin, by contrast, does get the court — authenticated as a real
+        // Sanctum-authorized admin user, not a static shared key.
+        Sanctum::actingAs(User::factory()->create());
+        $adminBody = $this->getJson('/api/admin/bookings')
             ->assertOk()
             ->getContent();
         $this->assertStringContainsString('courtName', $adminBody);

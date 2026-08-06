@@ -64,6 +64,17 @@ class BookingLookupTest extends TestCase
             ->assertJsonPath('cancellationWindowHours', BookingService::CANCELLATION_WINDOW_HOURS);
     }
 
+    public function test_lookup_still_returns_the_phone_once_ownership_is_proven(): void
+    {
+        // Confirms the phone-verified lookup path is unaffected by the PII
+        // suppression added for the unverified Thawani result endpoint.
+        $booking = $this->makeBooking(48, '99887766');
+
+        $this->getJson('/api/bookings/lookup?reference='.$booking->reference_code.'&phone=99887766')
+            ->assertOk()
+            ->assertJsonPath('booking.customerPhone', '99887766');
+    }
+
     public function test_lookup_is_case_insensitive_on_the_reference_code(): void
     {
         $booking = $this->makeBooking(48);

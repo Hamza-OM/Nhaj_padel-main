@@ -17,6 +17,9 @@ class BookingResource extends JsonResource
     /** Subclasses flip this on to include court identifiers. */
     protected bool $includeCourt = false;
 
+    /** Subclasses flip this off when the caller hasn't proven ownership of the booking. */
+    protected bool $includePii = true;
+
     public function toArray(Request $request): array
     {
         $bookingDate = $this->booking_date instanceof \DateTimeInterface
@@ -33,9 +36,9 @@ class BookingResource extends JsonResource
         return [
             'id' => (string) $this->id,
             'referenceCode' => $this->reference_code,
-            'customerPhone' => $this->customer_phone,
-            'customerName' => $this->customer_name,
-            'customerEmail' => $this->customer_email,
+            'customerPhone' => $this->includePii ? $this->customer_phone : '',
+            'customerName' => $this->includePii ? $this->customer_name : null,
+            'customerEmail' => $this->includePii ? $this->customer_email : null,
             'bookingDate' => $bookingDate,
             'totalDurationHours' => (int) $this->total_duration_hours,
             'subtotalAmount' => (float) $this->subtotal_amount,

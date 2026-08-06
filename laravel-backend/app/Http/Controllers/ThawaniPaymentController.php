@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\PaymentGatewayException;
-use App\Http\Resources\BookingResource;
+use App\Http\Resources\UnverifiedBookingResource;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Services\ThawaniService;
@@ -157,7 +157,7 @@ class ThawaniPaymentController extends Controller
         return response()->json([
             'paymentStatus' => $payment?->status ?? $booking->payment_status,
             'bookingStatus' => $booking->booking_status,
-            'booking' => new BookingResource($booking->load('items')),
+            'booking' => new UnverifiedBookingResource($booking->load('items')),
         ]);
     }
 
