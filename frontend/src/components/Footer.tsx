@@ -34,7 +34,7 @@ export const Footer: React.FC = () => {
 
           {/* Quick Navigation */}
           <div className="space-y-3">
-            <h4 className="font-bold text-sm text-primary uppercase tracking-wider">{t.navBookCourt} & More</h4>
+            <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{t.navBookCourt} & More</h3>
             <ul className="space-y-2 text-on-surface-variant">
               <li>
                 <Link
@@ -84,7 +84,7 @@ export const Footer: React.FC = () => {
 
           {/* Operating Hours */}
           <div className="space-y-3">
-            <h4 className="font-bold text-sm text-primary uppercase tracking-wider">{t.operatingHoursTitle}</h4>
+            <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{t.operatingHoursTitle}</h3>
             <div className="space-y-1.5 text-on-surface-variant">
               <div className="flex items-center gap-1.5 font-medium text-on-surface">
                 <Clock className="w-3.5 h-3.5 text-primary-container" />
@@ -100,7 +100,7 @@ export const Footer: React.FC = () => {
 
           {/* Payment Methods */}
           <div className="space-y-3">
-            <h4 className="font-bold text-sm text-primary uppercase tracking-wider">{t.paymentMethodTitle}</h4>
+            <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{t.paymentMethodTitle}</h3>
             <p className="text-on-surface-variant text-[11px] leading-relaxed">
               We accept Pay on Arrival (Cash or Card at reception) and Thawani Online Gateway payments in Omani Rial (OMR).
             </p>

@@ -47,11 +47,18 @@ export const HomeView: React.FC = () => {
         transition={{ duration: 0.4 }}
         className="glass-panel rounded-3xl relative overflow-hidden border-t border-t-white/15"
       >
-        {/* Background photo */}
+        {/* Background photo — a real <img> with fetchpriority="high" rather than a
+            CSS background-image, so the browser can discover and prioritize it
+            from the initial HTML instead of waiting on CSS/JS to apply it. This
+            is the page's LCP element; Lighthouse measured a 425ms load delay
+            before the old background-image version was even requested. */}
         <div className="absolute inset-0 z-0">
-          <div
-            className="w-full h-full bg-cover bg-center mix-blend-luminosity opacity-45"
-            style={{ backgroundImage: "url('/images/padel-hero.jpg')" }}
+          <img
+            src="/images/padel-hero.jpg"
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity opacity-45"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/75 to-surface/25" />
           <div className={`absolute inset-0 ${isRTL ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-surface/90 via-surface/55 to-transparent`} />

@@ -90,23 +90,69 @@ export const WebGLBackground: React.FC = () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let rafId: number | null = null;
+    let loopActive = false;
+
+    // Render at ~30fps instead of every rAF tick (~60fps). We still schedule a
+    // rAF every frame (needed to keep the loop alive and responsive to pause/
+    // resume), but skip the actual render/uniform update on alternate ticks.
+    // Halves sustained main-thread cost with no visible difference for a slow
+    // ambient background.
+    const FRAME_INTERVAL_MS = 1000 / 30;
+    let lastRenderTime = 0;
+
+    const animate = (time: number) => {
+      rafId = requestAnimationFrame(animate);
+      if (time - lastRenderTime < FRAME_INTERVAL_MS) return;
+      lastRenderTime = time;
+      uniforms.u_time.value = time * 0.001;
+      renderer.render(scene, camera);
+    };
+
+    const stopLoop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    const startLoop = () => {
+      if (rafId !== null) return; // already running — never schedule a second loop
+      lastRenderTime = 0;
+      rafId = requestAnimationFrame(animate);
+    };
+
+    // Stop burning frames on a tab nobody's looking at, and resume cleanly
+    // when it's foregrounded again.
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopLoop();
+      } else if (loopActive) {
+        startLoop();
+      }
+    };
 
     if (prefersReducedMotion) {
       renderer.render(scene, camera);
     } else {
+      // Start immediately, same as before — an earlier version deferred this
+      // via requestIdleCallback to avoid competing with page hydration, but
+      // measurement showed that made things worse: the browser is busy
+      // through most of hydration, so the callback just gets forced at its
+      // timeout, landing as a burst of new work in the middle of the busiest
+      // stretch instead of avoiding it. Starting right away, already
+      // throttled to 30fps, spreads the (now smaller) cost out from the
+      // start instead of clustering it later.
+      loopActive = true;
       window.addEventListener('mousemove', handleMouseMove);
-      const animate = (time: number) => {
-        uniforms.u_time.value = time * 0.001;
-        renderer.render(scene, camera);
-        rafId = requestAnimationFrame(animate);
-      };
-      rafId = requestAnimationFrame(animate);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      startLoop();
     }
 
     return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
+      stopLoop();
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       geometry.dispose();
       material.dispose();
       renderer.dispose();
