@@ -1,5 +1,79 @@
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:ital,wght@0,700;0,800;0,900;1,700;1,800&display=swap');
 @import "tailwindcss";
+
+/* Self-hosted Hanken Grotesk + Montserrat — replaces the Google Fonts @import,
+ * which Lighthouse measured as a ~1.4s render-blocking cross-origin CSS chain
+ * (index.css -> fonts.googleapis.com -> fonts.gstatic.com). Same files Google
+ * was already serving (byte-identical, fetched directly from fonts.gstatic.com),
+ * just referenced locally instead of through that chain. Only the latin subset
+ * and the exact weights/styles actually used in the app are included, matching
+ * the original @import's `wght@400;500;600;700` / `ital,wght@0,700;0,800;0,900;1,700;1,800`.
+ * Hanken Grotesk and Montserrat are both variable fonts — Google serves one
+ * file per family/style covering the whole weight axis, which is why multiple
+ * @font-face blocks below share the same src.
+ */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/montserrat-normal-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/montserrat-normal-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/montserrat-normal-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/montserrat-italic-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/montserrat-italic-latin.woff2') format('woff2');
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
