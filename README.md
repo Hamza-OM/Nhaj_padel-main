@@ -28,7 +28,12 @@ A full-stack web application for managing padel court bookings, featuring an **A
 | Username | `admin@padel.com` |
 | Password | `admin123` |
 
-*(Credentials are stored in the frontend AppContext — no backend auth is wired by default.)*
+Logging into `/admin` with these checks a hardcoded value in the frontend — that
+gate alone is **not** what protects the admin API. Every `/api/admin/*` request
+also requires an `X-Admin-Key` header matching `ADMIN_API_KEY` in the backend's
+`.env`, which the frontend attaches automatically once its own `VITE_ADMIN_API_KEY`
+is set to the same value. **Both `.env` files need this key configured before the
+admin dashboard will work locally** — see step 3 under Quick Start below.
 
 ---
 
@@ -65,11 +70,33 @@ In a **second terminal**:
 ```bash
 cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
 The app runs on **http://localhost:5173**.  
 `vite.config.ts` proxies all `/api/*` requests to `http://127.0.0.1:8000`, so no CORS issues during development.
+
+### 3 — Admin API key (required — the admin dashboard will 401 without this)
+
+The admin API is protected by a shared key, independent of the login screen. Generate
+one and put the **same value** in both `.env` files:
+
+```bash
+php -r "echo bin2hex(random_bytes(32));"
+```
+
+```
+# laravel-backend/.env
+ADMIN_API_KEY=<paste the generated value here>
+```
+
+```
+# frontend/.env
+VITE_ADMIN_API_KEY=<the same value>
+```
+
+Restart both dev servers after setting these (Vite only reads `.env` on startup).
 
 ---
 
