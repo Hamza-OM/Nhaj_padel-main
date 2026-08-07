@@ -80,6 +80,14 @@ The app runs on **http://localhost:5173**.
 
 Nothing else to configure — `/admin` is ready to use with the seeded credentials above.
 
+> **Note on `npm install`'s "2 high severity vulnerabilities" warning**: this is
+> `react-router-dom`'s [GHSA-qwww-vcr4-c8h2](https://github.com/advisories/GHSA-qwww-vcr4-c8h2),
+> an RSC (React Server Components) mode CSRF issue. This app is a pure client-rendered
+> SPA (`BrowserRouter`, no server rendering, no RSC APIs used anywhere) — the vulnerable
+> code path doesn't exist here. `7.18.2` is the newest version published; `npm audit fix
+> --force` would *downgrade* to `7.11.0`, trading this inapplicable advisory for several
+> real, older ones. Leave it as-is.
+
 ---
 
 ## 🗂️ Project Structure
@@ -191,21 +199,26 @@ server-side. There is no simulator in the payment path.
 
 ### Configuration
 
-Set these in `laravel-backend/.env` (never in the frontend, never committed):
+`laravel-backend/.env.example` already ships with Thawani's own publicly
+documented UAT test credentials (from https://developer.thawani.om/) — the
+same shared sandbox keys Thawani publishes for any developer to integrate
+against, not a real merchant's secret. `cp .env.example .env` is enough;
+online payment works immediately, no signup or key generation required.
 
 ```
 THAWANI_MODE=uat
-THAWANI_SECRET_KEY=your_sandbox_secret_key
-THAWANI_PUBLISHABLE_KEY=your_sandbox_publishable_key
+THAWANI_SECRET_KEY=rRQ26GcsZzoEhbrP2HZvLYDbn9C9et
+THAWANI_PUBLISHABLE_KEY=HGvTMLDssJghr9tlN9gr4DVYt0qyBy
 THAWANI_BASE_URL=https://uatcheckout.thawani.om/api/v1
 THAWANI_CHECKOUT_URL=https://uatcheckout.thawani.om/pay
 THAWANI_WEBHOOK_SECRET=          # from Merchant Portal > Webhook config
 FRONTEND_URL=http://localhost:5173   # must match the SPA origin — used for return URLs
 ```
 
-Credentials come from the Thawani merchant portal. The **secret key is
-backend-only**: it is never sent to React, never included in an API response,
-and never logged.
+The **secret key is backend-only**: it is never sent to React, never included
+in an API response, and never logged. For a real production deployment, get
+your own keys from the Thawani merchant portal (Settings > Developers) —
+those, unlike the shared UAT ones above, must never be committed.
 
 ### Checkout flow
 
@@ -300,3 +313,7 @@ the suite never touches the network.
 4. Set `APP_ENV=production`, `APP_DEBUG=false`, and run `php artisan config:cache`.
 5. Set a real `ADMIN_EMAIL` / strong `ADMIN_PASSWORD` in `laravel-backend/.env`
    before running the seeder — these become the only admin login.
+6. Replace `THAWANI_MODE`, `THAWANI_SECRET_KEY`, and `THAWANI_PUBLISHABLE_KEY`
+   with your own production credentials from the Thawani merchant portal — the
+   values in `.env.example` are Thawani's shared UAT-only test keys and can't
+   process real payments.
