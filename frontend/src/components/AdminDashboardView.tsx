@@ -332,7 +332,7 @@ export const AdminDashboardView: React.FC = () => {
 
   if (isVerifyingSession) {
     return (
-      <div className="flex items-center justify-center py-24">
+      <div className="max-w-md mx-auto my-12 glass-panel rounded-3xl p-8 min-h-[520px] flex items-center justify-center">
         <RefreshCw className="w-6 h-6 text-primary-container animate-spin" />
       </div>
     );
