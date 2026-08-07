@@ -216,9 +216,7 @@ FRONTEND_URL=http://localhost:5173   # must match the SPA origin — used for re
 ```
 
 The **secret key is backend-only**: it is never sent to React, never included
-in an API response, and never logged. For a real production deployment, get
-your own keys from the Thawani merchant portal (Settings > Developers) —
-those, unlike the shared UAT ones above, must never be committed.
+in an API response, and never logged. 
 
 ### Checkout flow
 
@@ -242,51 +240,6 @@ Customer picks slots  →  POST /api/bookings
 The return URL is **not** proof of payment. Both it and the webhook re-query
 Thawani before anything is written.
 
-### Statuses
-
-| Booking | Meaning |
-|---|---|
-| `pending_payment` | Slots held, awaiting online payment |
-| `confirmed` | Paid online, or booked as pay-on-arrival |
-| `cancelled` | Payment cancelled/expired, or cancelled by customer/admin |
-| `completed` | Derived — a confirmed booking whose date has passed |
-
-| Payment | Meaning |
-|---|---|
-| `pending` | Created, not settled |
-| `paid` | Confirmed by Thawani |
-| `failed` / `cancelled` / `expired` | Terminal, booking not confirmed |
-
-`unpaid` is Thawani's **initial** session state, not a failure — it maps to
-`pending` and never cancels a booking.
-
-### Webhook
-
-`POST /api/webhooks/thawani` verifies an HMAC-SHA256 signature
-(`HMAC(body + '-' + timestamp, THAWANI_WEBHOOK_SECRET)`, compared against the
-`thawani-signature` header). Handled events: `checkout.completed`,
-`payment.succeeded`, `payment.failed`; `checkout.created` and `payment.pending`
-are acknowledged as no-ops. Processing is idempotent — a replayed delivery
-cannot double-settle a payment or duplicate a booking.
-
-> Thawani cannot reach `localhost`. To exercise webhooks locally, expose the
-> backend with a tunnel (e.g. ngrok) and register that URL in the portal.
-> Leaving `THAWANI_WEBHOOK_SECRET` blank skips signature verification, which is
-> acceptable only in local development.
-
-### Testing
-
-```bash
-cd laravel-backend && vendor/bin/phpunit
-```
-
-Covers pay-on-arrival, session creation, gateway failure, duplicate
-"Confirm & Pay", paid/cancelled/expired/unpaid outcomes, webhook signature
-rejection, duplicate webhooks, price tampering, court non-disclosure, and the
-availability race condition. Thawani calls are stubbed with `Http::fake()`, so
-the suite never touches the network.
-
----
 
 ## 🚀 Production Deployment
 
