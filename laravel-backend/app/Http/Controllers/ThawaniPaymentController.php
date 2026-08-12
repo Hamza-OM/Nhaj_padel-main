@@ -6,6 +6,7 @@ use App\Exceptions\PaymentGatewayException;
 use App\Http\Resources\UnverifiedBookingResource;
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Services\BookingNotificationService;
 use App\Services\ThawaniService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,8 +15,10 @@ use Illuminate\Support\Facades\Log;
 
 class ThawaniPaymentController extends Controller
 {
-    public function __construct(protected ThawaniService $thawani)
-    {
+    public function __construct(
+        protected ThawaniService $thawani,
+        protected BookingNotificationService $notifications
+    ) {
     }
 
     /**
@@ -227,7 +230,13 @@ class ThawaniPaymentController extends Controller
             return;
         }
 
-        DB::transaction(function () use ($payment, $sessionData, $mapped) {
+        // Set inside the transaction, acted on only after it commits — mailing
+        // from inside would send a confirmation even if the transaction later
+        // rolled back. The isSettled() guard below also makes this fire once,
+        // so a replayed webhook can't email the customer twice.
+        $justConfirmed = null;
+
+        DB::transaction(function () use ($payment, $sessionData, $mapped, &$justConfirmed) {
             $fresh = Payment::whereKey($payment->getKey())->lockForUpdate()->first();
 
             if (! $fresh || $fresh->isSettled()) {
@@ -254,6 +263,7 @@ class ThawaniPaymentController extends Controller
                     'payment_status' => 'paid',
                     'booking_status' => 'confirmed',
                 ]);
+                $justConfirmed = $booking;
             } else {
                 // cancelled / expired — release the slots back to the pool.
                 $booking->update([
@@ -268,6 +278,10 @@ class ThawaniPaymentController extends Controller
                 'status' => $mapped,
             ]);
         });
+
+        if ($justConfirmed) {
+            $this->notifications->sendConfirmation($justConfirmed);
+        }
 
         $payment->refresh();
     }

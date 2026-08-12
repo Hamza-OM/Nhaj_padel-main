@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BookingResource;
+use App\Services\BookingNotificationService;
 use App\Services\BookingService;
 use App\Services\PricingService;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,8 @@ class CustomerBookingController extends Controller
 {
     public function __construct(
         protected BookingService $bookingService,
-        protected PricingService $pricingService
+        protected PricingService $pricingService,
+        protected BookingNotificationService $notifications
     ) {
     }
 
@@ -96,6 +98,14 @@ class CustomerBookingController extends Controller
                     'quantity' => $item['quantity'],
                 ], $validated['cartItems']),
             ]);
+
+            // Pay-on-arrival bookings are confirmed the moment they're created,
+            // so the confirmation goes out now. Thawani bookings start as
+            // pending_payment and are emailed from ThawaniPaymentController
+            // only once the payment actually settles.
+            if ($booking->payment_method === 'arrival') {
+                $this->notifications->sendConfirmation($booking);
+            }
 
             return response()->json([
                 'success' => true,
