@@ -17,7 +17,15 @@ export const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-primary-container rounded-lg flex items-center justify-center neon-glow">
-                <div className="w-3 h-3 bg-on-primary-container rounded-full"></div>
+                <svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-surface">
+                  <g transform="rotate(-18 32 32)">
+                    <path
+                      fillRule="evenodd"
+                      d="M32 9C43 9 50 17 50 27C50 37 43 45 32 45C21 45 14 37 14 27C14 17 21 9 32 9ZM36.5 18.5A7.5 7.5 0 1 0 36.5 33.5A7.5 7.5 0 1 0 36.5 18.5Z"
+                    />
+                    <rect x="27.5" y="43" width="9" height="13" rx="4.5" />
+                  </g>
+                </svg>
               </div>
               <span className="font-heading text-2xl font-extrabold italic tracking-tighter text-primary leading-none">
                 {t.brandName}<span className="text-primary-container">{t.brandAccent}</span>

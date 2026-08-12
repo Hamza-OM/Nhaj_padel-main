@@ -49,7 +49,18 @@ export const Navbar: React.FC = () => {
             className="flex items-center gap-2.5 sm:gap-3 text-start cursor-pointer group shrink-0"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary-container rounded-xl flex items-center justify-center shadow-sm neon-glow group-hover:shadow-md transition-shadow shrink-0">
-              <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-on-primary-container rounded-full"></div>
+              {/* Paddle with the ball cut out of its face — the hole is real
+                  negative space (evenodd), so it picks up whatever sits behind
+                  it rather than hard-coding the tile colour. */}
+              <svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6 text-surface">
+                <g transform="rotate(-18 32 32)">
+                  <path
+                    fillRule="evenodd"
+                    d="M32 9C43 9 50 17 50 27C50 37 43 45 32 45C21 45 14 37 14 27C14 17 21 9 32 9ZM36.5 18.5A7.5 7.5 0 1 0 36.5 33.5A7.5 7.5 0 1 0 36.5 18.5Z"
+                  />
+                  <rect x="27.5" y="43" width="9" height="13" rx="4.5" />
+                </g>
+              </svg>
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
