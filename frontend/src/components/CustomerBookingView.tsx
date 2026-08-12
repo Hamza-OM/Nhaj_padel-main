@@ -31,6 +31,7 @@ import {
 } from '../services/api';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
+import { formatLocalDate } from '../utils/date';
 import { ROUTES } from './Navbar';
 
 const gridStagger = {
@@ -48,7 +49,7 @@ export const CustomerBookingView: React.FC = () => {
   const t = translations[lang];
 
   // Date Management
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = formatLocalDate(new Date());
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
 
   // Slots & Loading
@@ -81,7 +82,7 @@ export const CustomerBookingView: React.FC = () => {
   const dateOptions = Array.from({ length: 14 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = formatLocalDate(d);
     const dayName = i === 0 ? t.today : i === 1 ? t.tomorrow : d.toLocaleDateString(lang === 'ar' ? 'ar-OM' : 'en-US', { weekday: 'short' });
     const dayNum = d.getDate();
     const monthName = d.toLocaleDateString(lang === 'ar' ? 'ar-OM' : 'en-US', { month: 'short' });

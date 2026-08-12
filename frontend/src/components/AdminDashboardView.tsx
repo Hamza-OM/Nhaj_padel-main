@@ -32,6 +32,7 @@ import {
 } from '../services/api';
 import { useApp } from '../context/AppContext';
 import { translations } from '../utils/translations';
+import { formatLocalDate } from '../utils/date';
 
 const gridStagger = {
   hidden: {},
@@ -128,7 +129,7 @@ export const AdminDashboardView: React.FC = () => {
   const [courtForm, setCourtForm] = useState({ name: '', basePricePerHour: 10, openingTime: '07:00', closingTime: '23:00', surfaceType: 'Indoor Panoramic' });
 
   const [showAddClosure, setShowAddClosure] = useState<boolean>(false);
-  const [closureForm, setClosureForm] = useState({ courtId: 'ALL', startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0], reason: 'Maintenance' });
+  const [closureForm, setClosureForm] = useState({ courtId: 'ALL', startDate: formatLocalDate(new Date()), endDate: formatLocalDate(new Date()), reason: 'Maintenance' });
 
   const [showAddRule, setShowAddRule] = useState<boolean>(false);
   const [ruleForm, setRuleForm] = useState({ minHours: 1, maxHours: 1, ratePerHour: 10, description: '' });
@@ -269,7 +270,7 @@ export const AdminDashboardView: React.FC = () => {
     .reduce((acc, b) => acc + b.totalAmount, 0);
 
   // "Active" closures means currently in effect today, not the total ever created
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = formatLocalDate(new Date());
   const activeClosuresCount = closures.filter((c) => c.startDate <= todayStr && c.endDate >= todayStr).length;
 
   // Filtered Bookings for Table
