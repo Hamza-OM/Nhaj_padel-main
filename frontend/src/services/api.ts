@@ -249,6 +249,11 @@ export async function createAdminPricingRule(rule: Partial<TieredPricingRule>): 
   return res.json();
 }
 
+export async function deleteAdminPricingRule(id: string): Promise<void> {
+  const res = await adminFetch(`/admin/pricing-rules/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete pricing rule');
+}
+
 export async function fetchAdminBookings(filters?: {
   courtId?: string;
   date?: string;

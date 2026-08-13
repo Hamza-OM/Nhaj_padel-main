@@ -124,6 +124,19 @@ class AdminCourtController extends Controller
         return response()->json(['message' => 'Closure removed successfully']);
     }
 
+    /**
+     * Pricing rules were previously add-only, which made a typo permanent —
+     * a tier entered as 5 OMR instead of 50 could never be taken back out.
+     * Removing the last rule is allowed: PricingService falls back to the
+     * base hourly rate when nothing matches.
+     */
+    public function destroyPricingRule(TieredPricingRule $pricingRule): JsonResponse
+    {
+        $pricingRule->delete();
+
+        return response()->json(['message' => 'Pricing rule removed successfully']);
+    }
+
     // GET /api/admin/pricing-rules
     public function getPricingRules(): JsonResponse
     {

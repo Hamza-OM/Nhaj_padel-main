@@ -23,6 +23,7 @@ import {
   deleteAdminClosure,
   fetchAdminPricingRules,
   createAdminPricingRule,
+  deleteAdminPricingRule,
   fetchAdminBookings,
   cancelAdminBooking,
   adminLogin,
@@ -230,6 +231,15 @@ export const AdminDashboardView: React.FC = () => {
   const handleDeleteClosure = async (id: string) => {
     try {
       await deleteAdminClosure(id);
+      loadData();
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteRule = async (id: string) => {
+    try {
+      await deleteAdminPricingRule(id);
       loadData();
     } catch (err: any) {
       console.error(err);
@@ -1043,6 +1053,15 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
                 <div className="font-heading text-3xl font-bold text-primary">{rule.ratePerHour} {currency} <span className="font-sans text-xs font-normal text-on-surface-variant">/ hr</span></div>
                 <p className="text-xs text-on-surface-variant">{rule.description}</p>
+                <div className="flex justify-end pt-1">
+                  <button
+                    onClick={() => handleDeleteRule(rule.id)}
+                    className="flex items-center gap-1.5 text-error hover:opacity-80 text-xs font-bold cursor-pointer transition-opacity"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{t.delete}</span>
+                  </button>
+                </div>
               </motion.div>
             ))}
           </motion.div>

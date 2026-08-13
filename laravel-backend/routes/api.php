@@ -73,8 +73,9 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::delete('/closures/{closure}',  [AdminCourtController::class, 'destroyClosure']);
 
     // Tiered Pricing Rules
-    Route::get('/pricing-rules',   [AdminCourtController::class, 'getPricingRules']);
-    Route::post('/pricing-rules',  [AdminCourtController::class, 'storePricingRule']);
+    Route::get('/pricing-rules',    [AdminCourtController::class, 'getPricingRules']);
+    Route::post('/pricing-rules',   [AdminCourtController::class, 'storePricingRule']);
+    Route::delete('/pricing-rules/{pricingRule}', [AdminCourtController::class, 'destroyPricingRule']);
 
     // Booking Management
     Route::get('/bookings',                       [AdminBookingController::class, 'index']);
