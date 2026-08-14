@@ -26,6 +26,7 @@ import {
   deleteAdminPricingRule,
   fetchAdminBookings,
   cancelAdminBooking,
+  settleAdminBooking,
   adminLogin,
   adminLogout,
   verifyAdminSession,
@@ -274,13 +275,55 @@ export const AdminDashboardView: React.FC = () => {
     }
   };
 
+  const handleSettleBooking = async (booking: Booking, outcome: 'paid' | 'no_show') => {
+    setActionError(null);
+    try {
+      await settleAdminBooking(booking.id, outcome);
+      await loadData();
+    } catch (err: any) {
+      setActionError(err.message || 'Failed to settle booking');
+    }
+  };
+
   // Calculate Metrics
-  const totalRevenue = bookings
-    .filter((b) => b.bookingStatus !== 'cancelled')
+  //
+  // A booking's money is only real once payment_status is 'paid'. Counting
+  // every non-cancelled booking as revenue overstates it badly: it sweeps in
+  // pay-on-arrival bookings nobody has paid for yet, plus abandoned Thawani
+  // checkouts (pending_payment) that will almost certainly never be paid.
+  // Those three buckets are shown separately so the headline figure means
+  // "money actually taken".
+  const todayStr = formatLocalDate(new Date());
+
+  const cancelledCount = bookings.filter((b) => b.bookingStatus === 'cancelled').length;
+  const awaitingPaymentCount = bookings.filter((b) => b.bookingStatus === 'pending_payment').length;
+  const activeBookingsCount = bookings.length - cancelledCount - awaitingPaymentCount;
+
+  const liveBookings = bookings.filter(
+    (b) => b.bookingStatus !== 'cancelled' && b.bookingStatus !== 'pending_payment'
+  );
+
+  const revenueCollected = liveBookings
+    .filter((b) => b.paymentStatus === 'paid')
     .reduce((acc, b) => acc + b.totalAmount, 0);
 
+  // A no-show is recorded as a cancelled payment: the slot was held but no
+  // money was ever due, so it belongs in neither bucket below.
+  const unpaidLive = liveBookings.filter(
+    (b) => b.paymentStatus !== 'paid' && b.paymentStatus !== 'cancelled'
+  );
+
+  // Still to come — the customer pays at reception on the day.
+  const revenueExpected = unpaidLive
+    .filter((b) => b.bookingDate >= todayStr)
+    .reduce((acc, b) => acc + b.totalAmount, 0);
+
+  // Sessions that already happened and were never settled at the counter.
+  // Not "expected" in any meaningful sense — it's a reconciliation backlog.
+  const unsettledBookings = unpaidLive.filter((b) => b.bookingDate < todayStr);
+  const revenueUnsettled = unsettledBookings.reduce((acc, b) => acc + b.totalAmount, 0);
+
   // "Active" closures means currently in effect today, not the total ever created
-  const todayStr = formatLocalDate(new Date());
   const activeClosuresCount = closures.filter((c) => c.startDate <= todayStr && c.endDate >= todayStr).length;
 
   // Filtered Bookings for Table
@@ -496,7 +539,17 @@ export const AdminDashboardView: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
           <div className="bg-surface-container-high/60 border border-white/5 rounded-2xl p-5">
             <span className="text-xs text-on-surface-variant font-semibold">{t.totalRevenue}</span>
-            <div className="font-heading text-3xl font-bold text-primary-container mt-1">{totalRevenue.toFixed(2)} {currency}</div>
+            <div className="font-heading text-3xl font-bold text-primary-container mt-1">{revenueCollected.toFixed(2)} {currency}</div>
+            {revenueExpected > 0 && (
+              <div className="text-[11px] text-on-surface-variant mt-1">
+                +{revenueExpected.toFixed(2)} {currency} {t.revenueExpected}
+              </div>
+            )}
+            {revenueUnsettled > 0 && (
+              <div className="text-[11px] text-amber-400 mt-0.5">
+                {revenueUnsettled.toFixed(2)} {currency} {t.revenueUnsettled}
+              </div>
+            )}
           </div>
           <div className="bg-surface-container-high/60 border border-white/5 rounded-2xl p-5">
             <span className="text-xs text-on-surface-variant font-semibold">{t.activeCourts}</span>
@@ -506,7 +559,14 @@ export const AdminDashboardView: React.FC = () => {
           </div>
           <div className="bg-surface-container-high/60 border border-white/5 rounded-2xl p-5">
             <span className="text-xs text-on-surface-variant font-semibold">{t.totalBookings}</span>
-            <div className="font-heading text-3xl font-bold text-primary mt-1">{bookings.length}</div>
+            <div className="font-heading text-3xl font-bold text-primary mt-1">{activeBookingsCount}</div>
+            {(cancelledCount > 0 || awaitingPaymentCount > 0) && (
+              <div className="text-[11px] text-on-surface-variant mt-1">
+                {cancelledCount > 0 && `${cancelledCount} ${t.bookingsCancelled}`}
+                {cancelledCount > 0 && awaitingPaymentCount > 0 && ' · '}
+                {awaitingPaymentCount > 0 && `${awaitingPaymentCount} ${t.bookingsAwaitingPayment}`}
+              </div>
+            )}
           </div>
           <div className="bg-surface-container-high/60 border border-white/5 rounded-2xl p-5">
             <span className="text-xs text-on-surface-variant font-semibold">{t.activeClosures}</span>
@@ -730,16 +790,28 @@ export const AdminDashboardView: React.FC = () => {
                           </div>
                         </td>
                         <td className="p-4">
+                          {/* pending_payment must be named explicitly: falling through
+                              to "Completed" told staff an abandoned, unpaid checkout
+                              was a finished session — the opposite of the truth, while
+                              it still holds the slot. */}
                           <span
                             className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
                               b.bookingStatus === 'confirmed'
                                 ? 'bg-primary-container/10 text-primary-container border border-primary-container/30'
                                 : b.bookingStatus === 'cancelled'
                                 ? 'bg-error-container/20 text-error border border-error/30'
+                                : b.bookingStatus === 'pending_payment'
+                                ? 'bg-amber-400/10 text-amber-400 border border-amber-400/30'
                                 : 'bg-surface-container-high text-on-surface-variant border border-white/10'
                             }`}
                           >
-                            {b.bookingStatus === 'confirmed' ? t.confirmed : b.bookingStatus === 'cancelled' ? t.cancelled : t.completed}
+                            {b.bookingStatus === 'confirmed'
+                              ? t.confirmed
+                              : b.bookingStatus === 'cancelled'
+                              ? t.cancelled
+                              : b.bookingStatus === 'pending_payment'
+                              ? t.awaitingPayment
+                              : t.completed}
                           </span>
                         </td>
                         <td className="p-4">
@@ -754,6 +826,29 @@ export const AdminDashboardView: React.FC = () => {
                               {t.cancelBookingBtn}
                             </button>
                           )}
+                          {/* Cash at reception has no gateway to confirm it, so staff
+                              record the outcome here. Offered once the session is in
+                              the past — before that, "expected on arrival" is correct
+                              and there is nothing to settle yet. */}
+                          {b.paymentMethod === 'arrival' &&
+                            b.paymentStatus === 'pending' &&
+                            b.bookingStatus !== 'cancelled' &&
+                            b.bookingDate < todayStr && (
+                              <div className="flex flex-col gap-1 mt-1">
+                                <button
+                                  onClick={() => handleSettleBooking(b, 'paid')}
+                                  className="text-primary-container hover:opacity-80 font-bold text-[11px] cursor-pointer transition-opacity text-start"
+                                >
+                                  {t.markPaid}
+                                </button>
+                                <button
+                                  onClick={() => handleSettleBooking(b, 'no_show')}
+                                  className="text-on-surface-variant hover:text-error font-bold text-[11px] cursor-pointer transition-colors text-start"
+                                >
+                                  {t.markNoShow}
+                                </button>
+                              </div>
+                            )}
                         </td>
                       </tr>
                     ))
