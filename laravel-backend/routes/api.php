@@ -80,6 +80,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     // Booking Management
     Route::get('/bookings',                       [AdminBookingController::class, 'index']);
     Route::post('/bookings/{booking}/cancel',     [AdminBookingController::class, 'cancel']);
+    Route::post('/bookings/{booking}/settle',     [AdminBookingController::class, 'settle']);
 });
 
 // ── Thawani Server-to-Server Webhook (production) ───────────────────────────

@@ -78,4 +78,49 @@ class AdminBookingController extends Controller
             'booking' => new AdminBookingResource($booking->load('items.court')),
         ]);
     }
+
+    /**
+     * POST /api/admin/bookings/{booking}/settle  { outcome: paid|no_show }
+     *
+     * Records what happened at the counter for a pay-on-arrival booking.
+     *
+     * Online bookings settle themselves — Thawani tells us whether the money
+     * arrived. Cash at reception has no such signal, so without this the
+     * payment sat at 'pending' forever: revenue never counted a single riyal
+     * taken in person, and every past session piled up as "expected" whether
+     * the customer paid, or never turned up at all.
+     */
+    public function settle(Request $request, Booking $booking): JsonResponse
+    {
+        $validated = $request->validate([
+            'outcome' => 'required|in:paid,no_show',
+        ]);
+
+        if ($booking->payment_method !== 'arrival') {
+            return response()->json([
+                'error' => 'Only pay-on-arrival bookings are settled by hand; online payments are confirmed by the gateway.',
+            ], 422);
+        }
+
+        if ($booking->booking_status === 'cancelled') {
+            return response()->json(['error' => 'This booking was cancelled.'], 422);
+        }
+
+        if ($booking->payment_status === 'paid') {
+            return response()->json(['error' => 'This booking is already marked as paid.'], 422);
+        }
+
+        // 'cancelled' rather than 'failed': nothing was attempted and went
+        // wrong — the customer simply never showed up to pay.
+        $status = $validated['outcome'] === 'paid' ? 'paid' : 'cancelled';
+
+        $booking->update(['payment_status' => $status]);
+        $booking->payments()->latest()->first()?->update(['status' => $status]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $status === 'paid' ? 'Marked as paid.' : 'Marked as a no-show.',
+            'booking' => new AdminBookingResource($booking->fresh()->load('items.court')),
+        ]);
+    }
 }

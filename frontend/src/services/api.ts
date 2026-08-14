@@ -273,6 +273,23 @@ export async function fetchAdminBookings(filters?: {
   return res.json();
 }
 
+/**
+ * Records the counter outcome for a pay-on-arrival booking: the customer paid
+ * in cash, or never turned up. Online bookings settle via Thawani instead.
+ */
+export async function settleAdminBooking(id: string, outcome: 'paid' | 'no_show'): Promise<Booking> {
+  const res = await adminFetch(`/admin/bookings/${id}/settle`, {
+    method: 'POST',
+    body: JSON.stringify({ outcome })
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || 'Failed to settle booking');
+  }
+  const json = await res.json();
+  return json.booking;
+}
+
 export async function cancelAdminBooking(id: string): Promise<Booking> {
   const res = await adminFetch(`/admin/bookings/${id}/cancel`, { method: 'POST' });
   const json = await res.json();
