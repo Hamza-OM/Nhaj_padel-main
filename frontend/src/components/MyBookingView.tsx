@@ -75,7 +75,7 @@ export const MyBookingView: React.FC = () => {
       setBooking(res.booking);
       setShowCancelConfirm(false);
     } catch (err) {
-      setCancelError(err instanceof Error ? err.message : 'Could not cancel this booking');
+      setCancelError(err instanceof Error ? err.message : t.errActionFailed);
       setShowCancelConfirm(false);
     } finally {
       setIsCancelling(false);
@@ -239,7 +239,7 @@ export const MyBookingView: React.FC = () => {
                 )}
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">{t.paymentMethodTitle}:</span>
-                  <span className="text-on-surface capitalize">{booking.paymentMethod}</span>
+                  <span className="text-on-surface">{booking.paymentMethod === 'arrival' ? t.payOnArrival : t.thawaniOnline}</span>
                 </div>
                 <div className="flex justify-between border-t border-white/10 pt-2.5 font-bold">
                   <span className="text-on-surface-variant">{t.totalAmount}:</span>

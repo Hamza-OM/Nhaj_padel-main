@@ -100,7 +100,7 @@ export const CustomerBookingView: React.FC = () => {
         setIsLoadingSlots(false);
       })
       .catch((err) => {
-        setErrorMsg(err.message || 'Error loading court availability');
+        setErrorMsg(err.message || t.errSlotsLoad);
         setIsLoadingSlots(false);
       });
   };
@@ -230,7 +230,7 @@ export const CustomerBookingView: React.FC = () => {
 
       setConfirmedBooking(res.booking);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to confirm booking');
+      setErrorMsg(err.message || t.errBookingFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -282,7 +282,7 @@ export const CustomerBookingView: React.FC = () => {
                 <CalendarIcon className="w-5 h-5 text-primary-container" />
                 <span>{t.selectDate}</span>
               </div>
-              <span className="text-xs text-on-surface-variant font-medium">14-Day Advance Booking</span>
+              <span className="text-xs text-on-surface-variant font-medium">{t.advanceBooking14Days}</span>
             </div>
 
             <motion.div
@@ -331,9 +331,9 @@ export const CustomerBookingView: React.FC = () => {
               <div>
                 <h4 className="font-bold text-sm text-primary">{t.ratesMatrixTitle}</h4>
                 <p className="text-xs text-on-surface-variant">
-                  1 Hr: <span className="text-primary font-bold">10 {currency}/{t.hourShort}</span> | 2 Hrs:{' '}
-                  <span className="text-primary-container font-bold">8 {currency}/{t.hourShort} (Save 20%)</span> | 3+ Hrs:{' '}
-                  <span className="text-primary-container font-bold">7 {currency}/{t.hourShort} (Save 30%)</span>
+                  {t.rate1hrBadge}: <span className="text-primary font-bold">10 {currency}/{t.hourShort}</span> | {t.rate2hrBadge}:{' '}
+                  <span className="text-primary-container font-bold">8 {currency}/{t.hourShort} ({t.save20})</span> | {t.rate3hrBadge}:{' '}
+                  <span className="text-primary-container font-bold">7 {currency}/{t.hourShort} ({t.save30})</span>
                 </p>
               </div>
             </div>
@@ -370,16 +370,16 @@ export const CustomerBookingView: React.FC = () => {
 
               <div className="flex items-center gap-4 text-xs font-semibold text-on-surface-variant">
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-surface-container-high border border-white/10"></span> Available
+                  <span className="w-3 h-3 rounded-full bg-surface-container-high border border-white/10"></span> {t.legendAvailable}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-primary-container"></span> Selected
+                  <span className="w-3 h-3 rounded-full bg-primary-container"></span> {t.legendSelected}
                 </div>
               </div>
             </div>
 
             {isLoadingSlots ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" aria-label="Loading court slots">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" aria-label={t.loadingSlots}>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="p-5 rounded-2xl border border-white/10 bg-surface-container-low space-y-3 animate-pulse">
                     <div className="h-3 w-10 bg-surface-container-high rounded" />
@@ -389,7 +389,7 @@ export const CustomerBookingView: React.FC = () => {
                 ))}
               </div>
             ) : slots.length === 0 ? (
-              <div className="py-12 text-center text-on-surface-variant">No slots available for this date.</div>
+              <div className="py-12 text-center text-on-surface-variant">{t.noSlotsForDate}</div>
             ) : (
               <motion.div
                 key={selectedDate}
@@ -451,7 +451,7 @@ export const CustomerBookingView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h2 className="font-heading text-2xl font-bold text-primary">{t.cartTitle}</h2>
               <span className="bg-primary-container text-on-primary-container text-xs px-3 py-1 rounded-full font-black">
-                {cart.length} {cart.length === 1 ? 'Slot' : 'Slots'}
+                {cart.length} {cart.length === 1 ? t.slotSingular : t.slotPlural}
               </span>
             </div>
 
@@ -511,7 +511,7 @@ export const CustomerBookingView: React.FC = () => {
                             className="text-error hover:opacity-80 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-opacity"
                           >
                             <Trash2 className="w-3 h-3" />
-                            <span>Remove</span>
+                            <span>{t.remove}</span>
                           </button>
                         </div>
                       </motion.div>
@@ -569,7 +569,7 @@ export const CustomerBookingView: React.FC = () => {
                           <span className="font-semibold">{errorMsg}</span>
                         </div>
                         <button type="button" onClick={() => setErrorMsg(null)} className="font-bold text-[10px] uppercase tracking-wider text-error hover:underline cursor-pointer ml-2">
-                          Dismiss
+                          {t.close}
                         </button>
                       </motion.div>
                     )}
@@ -680,7 +680,7 @@ export const CustomerBookingView: React.FC = () => {
                         }`}
                       >
                         <span>{t.payOnArrival}</span>
-                        <span className="text-[10px] opacity-75 font-normal">Cash or Card at Club</span>
+                        <span className="text-[10px] opacity-75 font-normal">{t.payOnArrivalDesc}</span>
                       </button>
 
                       <button
@@ -693,7 +693,7 @@ export const CustomerBookingView: React.FC = () => {
                         }`}
                       >
                         <span>{t.thawaniOnline}</span>
-                        <span className="text-[10px] opacity-75 font-normal">Thawani Pay (Sandbox)</span>
+                        <span className="text-[10px] opacity-75 font-normal">{t.thawaniOnlineDesc}</span>
                       </button>
                     </div>
                   </div>
@@ -707,7 +707,7 @@ export const CustomerBookingView: React.FC = () => {
                     className="w-full py-4 bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container rounded-2xl font-black text-base transition-colors flex items-center justify-center gap-2 neon-glow neon-glow-hover disabled:opacity-50 mt-4 cursor-pointer"
                   >
                     {isSubmitting ? (
-                      <span>Reserving Court Pool...</span>
+                      <span>{t.reservingCourt}</span>
                     ) : (
                       <>
                         <span>{paymentMethod === 'thawani' ? t.proceedThawaniBtn : t.confirmBookingBtn}</span>
@@ -715,7 +715,7 @@ export const CustomerBookingView: React.FC = () => {
                       </>
                     )}
                   </motion.button>
-                  <p className="text-[10px] text-on-surface-variant text-center mt-2">By clicking confirm, you agree to our booking terms and conditions.</p>
+                  <p className="text-[10px] text-on-surface-variant text-center mt-2">{t.termsNote}</p>
                 </form>
               </div>
             )}
@@ -776,7 +776,7 @@ export const CustomerBookingView: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant font-sans">{t.paymentMethodTitle}:</span>
-                  <span className="text-on-surface capitalize">{confirmedBooking.paymentMethod}</span>
+                  <span className="text-on-surface">{confirmedBooking.paymentMethod === 'arrival' ? t.payOnArrival : t.thawaniOnline}</span>
                 </div>
 
                 {/* Session times only — which physical court you're allocated is

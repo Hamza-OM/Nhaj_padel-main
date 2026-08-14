@@ -128,7 +128,7 @@ export const AdminDashboardView: React.FC = () => {
 
   // Modal / Form States
   const [showAddCourt, setShowAddCourt] = useState<boolean>(false);
-  const [courtForm, setCourtForm] = useState({ name: '', basePricePerHour: 10, openingTime: '07:00', closingTime: '23:00', surfaceType: 'Indoor Panoramic' });
+  const [courtForm, setCourtForm] = useState({ name: '', basePricePerHour: 10, openingTime: '07:00', closingTime: '23:00', surfaceType: 'Professional Padel Turf' });
 
   const [showAddClosure, setShowAddClosure] = useState<boolean>(false);
   const [closureForm, setClosureForm] = useState({ courtId: 'ALL', startDate: formatLocalDate(new Date()), endDate: formatLocalDate(new Date()), reason: 'Maintenance' });
@@ -185,7 +185,7 @@ export const AdminDashboardView: React.FC = () => {
     try {
       await createAdminCourt(courtForm);
       setShowAddCourt(false);
-      setCourtForm({ name: '', basePricePerHour: 10, openingTime: '07:00', closingTime: '23:00', surfaceType: 'Indoor Panoramic' });
+      setCourtForm({ name: '', basePricePerHour: 10, openingTime: '07:00', closingTime: '23:00', surfaceType: 'Professional Padel Turf' });
       loadData();
     } catch (err: any) {
       console.error(err);
@@ -210,7 +210,7 @@ export const AdminDashboardView: React.FC = () => {
       setCourtToDelete(null);
       await loadData();
     } catch (err: any) {
-      setActionError(err.message || 'Failed to delete court');
+      setActionError(err.message || t.errActionFailed);
     } finally {
       setIsProcessingAction(false);
     }
@@ -269,7 +269,7 @@ export const AdminDashboardView: React.FC = () => {
       setBookingToCancel(null);
       await loadData();
     } catch (err: any) {
-      setActionError(err.message || 'Failed to cancel booking');
+      setActionError(err.message || t.errActionFailed);
     } finally {
       setIsProcessingAction(false);
     }
@@ -281,7 +281,7 @@ export const AdminDashboardView: React.FC = () => {
       await settleAdminBooking(booking.id, outcome);
       await loadData();
     } catch (err: any) {
-      setActionError(err.message || 'Failed to settle booking');
+      setActionError(err.message || t.errActionFailed);
     }
   };
 
@@ -431,8 +431,8 @@ export const AdminDashboardView: React.FC = () => {
             </button>
           </div>
           <div className="space-y-1 font-mono text-on-surface-variant">
-            <div><span className="opacity-70">Username / Email:</span> <strong className="text-primary">admin@padel.com</strong></div>
-            <div><span className="opacity-70">Password:</span> <strong className="text-primary">Demo-5e977ff12f8c</strong></div>
+            <div><span className="opacity-70">{t.usernameLabel}:</span> <strong className="text-primary">admin@padel.com</strong></div>
+            <div><span className="opacity-70">{t.passwordLabel}:</span> <strong className="text-primary">Demo-5e977ff12f8c</strong></div>
           </div>
         </div>
 
@@ -528,7 +528,7 @@ export const AdminDashboardView: React.FC = () => {
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 bg-error-container/20 hover:bg-error-container/30 border border-error/30 px-4 py-2.5 rounded-xl text-xs font-bold text-on-error-container transition-colors cursor-pointer"
-              title="Logout from Admin Portal"
+              title={t.logoutTooltip}
             >
               <span>{lang === 'ar' ? 'تسجيل الخروج' : 'Log Out'}</span>
             </button>
@@ -668,7 +668,7 @@ export const AdminDashboardView: React.FC = () => {
                     <button
                       onClick={() => setFilterDate('')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary text-xs"
-                      title="Clear date"
+                      title={t.clearFilter}
                     >
                       ✕
                     </button>
@@ -723,7 +723,7 @@ export const AdminDashboardView: React.FC = () => {
                     <button
                       onClick={() => setFilterPhone('')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary text-xs font-bold"
-                      title="Clear search"
+                      title={t.clearFilter}
                     >
                       ✕
                     </button>
@@ -786,7 +786,7 @@ export const AdminDashboardView: React.FC = () => {
                         <td className="p-4">
                           <div className="font-mono font-bold text-primary text-sm">{b.totalAmount.toFixed(2)} {currency}</div>
                           <div className="text-[11px] text-on-surface-variant uppercase">
-                            {b.paymentMethod === 'arrival' ? t.payOnArrival : t.thawaniOnline} • <span className={b.paymentStatus === 'paid' ? 'text-primary-container font-bold' : b.paymentStatus === 'failed' ? 'text-error font-bold' : 'text-amber-400'}>{b.paymentStatus}</span>
+                            {b.paymentMethod === 'arrival' ? t.payOnArrival : t.thawaniOnline} • <span className={b.paymentStatus === 'paid' ? 'text-primary-container font-bold' : b.paymentStatus === 'failed' ? 'text-error font-bold' : 'text-amber-400'}>{b.paymentStatus === 'paid' ? t.payStatusPaid : b.paymentStatus === 'failed' ? t.payStatusFailed : b.paymentStatus === 'cancelled' ? t.cancelled : t.payStatusPending}</span>
                           </div>
                         </td>
                         <td className="p-4">
@@ -880,7 +880,7 @@ export const AdminDashboardView: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-bold text-base text-primary">{court.name}</h4>
-                    <span className="text-xs text-on-surface-variant">{court.surfaceType || 'Indoor Panoramic'}</span>
+                    <span className="text-xs text-on-surface-variant">{court.surfaceType || t.courtSurface}</span>
                   </div>
                   <button
                     onClick={() => handleToggleCourtActive(court)}
@@ -890,17 +890,17 @@ export const AdminDashboardView: React.FC = () => {
                         : 'bg-surface-container-high text-on-surface-variant border border-white/10'
                     }`}
                   >
-                    {court.isActive ? 'Active' : 'Inactive'}
+                    {court.isActive ? t.active : t.inactive}
                   </button>
                 </div>
 
                 <div className="space-y-2 text-xs text-on-surface-variant pt-2 border-t border-white/10">
                   <div className="flex justify-between">
-                    <span>Base Rate:</span>
-                    <span className="font-mono font-bold text-primary">{court.basePricePerHour} {currency} / hr</span>
+                    <span>{t.baseRate}:</span>
+                    <span className="font-mono font-bold text-primary">{court.basePricePerHour} {currency} / {t.hourShort}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Hours:</span>
+                    <span>{t.operatingHoursTitle}:</span>
                     <span className="font-mono text-on-surface">
                       {court.openingTime} - {court.closingTime}
                     </span>
@@ -938,21 +938,21 @@ export const AdminDashboardView: React.FC = () => {
                   onSubmit={handleSaveCourt}
                   className="glass-panel rounded-3xl p-6 w-full max-w-md space-y-4 text-on-surface shadow-2xl border-t border-t-white/15"
                 >
-                  <h3 className="font-bold text-lg text-primary">Add New Padel Court</h3>
+                  <h3 className="font-bold text-lg text-primary">{t.addNewCourt}</h3>
                   <div className="space-y-3 text-xs">
                     <div>
-                      <label className="block text-on-surface-variant font-semibold mb-1">Court Name (Internal)</label>
+                      <label className="block text-on-surface-variant font-semibold mb-1">{t.courtNameLabel}</label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Court Epsilon (Pro Glass)"
+                        placeholder={t.courtNamePlaceholder}
                         value={courtForm.name}
                         onChange={(e) => setCourtForm({ ...courtForm, name: e.target.value })}
                         className="w-full bg-surface-container-high border border-white/10 rounded-xl px-3 py-2 text-on-surface focus:border-primary-container outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-on-surface-variant font-semibold mb-1">Base Hourly Rate ({currency})</label>
+                      <label className="block text-on-surface-variant font-semibold mb-1">{t.baseRate} ({currency})</label>
                       <input
                         type="number"
                         required
@@ -963,7 +963,7 @@ export const AdminDashboardView: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-on-surface-variant font-semibold mb-1">Opening Time</label>
+                        <label className="block text-on-surface-variant font-semibold mb-1">{t.openingTimeLabel}</label>
                         <input
                           type="time"
                           value={courtForm.openingTime}
@@ -972,7 +972,7 @@ export const AdminDashboardView: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-on-surface-variant font-semibold mb-1">Closing Time</label>
+                        <label className="block text-on-surface-variant font-semibold mb-1">{t.closingTimeLabel}</label>
                         <input
                           type="time"
                           value={courtForm.closingTime}
@@ -985,10 +985,10 @@ export const AdminDashboardView: React.FC = () => {
 
                   <div className="flex gap-2 pt-2">
                     <button type="submit" className="flex-1 bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-3 rounded-xl text-xs cursor-pointer transition-colors">
-                      Create Court
+                      {t.saveCourt}
                     </button>
                     <button type="button" onClick={() => setShowAddCourt(false)} className="px-4 bg-surface-container-high text-on-surface-variant rounded-xl text-xs font-semibold hover:bg-surface-bright cursor-pointer transition-colors">
-                      Cancel
+                      {t.cancel}
                     </button>
                   </div>
                 </motion.form>
@@ -1004,7 +1004,7 @@ export const AdminDashboardView: React.FC = () => {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-bold text-primary">{t.closuresTitle}</h3>
-              <p className="text-xs text-on-surface-variant">Close a single court, multiple courts, or all courts for specific days or date ranges.</p>
+              <p className="text-xs text-on-surface-variant">{t.closuresDesc}</p>
             </div>
             <button
               onClick={() => setShowAddClosure(true)}
@@ -1018,17 +1018,17 @@ export const AdminDashboardView: React.FC = () => {
           <div className="glass-panel rounded-2xl p-5">
             <div className="space-y-3">
               {closures.map((c) => {
-                const affectedCourtName = c.courtId === 'ALL' ? 'ALL COURTS (Facility Blackout)' : courts.find((ct) => ct.id === c.courtId)?.name || c.courtId;
+                const affectedCourtName = c.courtId === 'ALL' ? t.closureAllCourts : courts.find((ct) => ct.id === c.courtId)?.name || c.courtId;
                 return (
                   <div key={c.id} className="bg-surface-container-high/60 border border-white/5 rounded-xl p-4 flex items-center justify-between text-xs">
                     <div>
                       <div className="font-bold text-amber-400">{affectedCourtName}</div>
                       <div className="text-on-surface-variant mt-0.5">
-                        {c.startDate} to {c.endDate} — Reason: <span className="italic text-on-surface">{c.reason}</span>
+                        {c.startDate} {t.dateRangeTo} {c.endDate} — {t.reasonLabel}: <span className="italic text-on-surface">{c.reason}</span>
                       </div>
                     </div>
                     <button onClick={() => handleDeleteClosure(c.id)} className="text-error hover:opacity-80 font-bold cursor-pointer transition-opacity">
-                      Remove
+                      {t.remove}
                     </button>
                   </div>
                 );
@@ -1051,16 +1051,16 @@ export const AdminDashboardView: React.FC = () => {
                   onSubmit={handleSaveClosure}
                   className="glass-panel rounded-3xl p-6 w-full max-w-md space-y-4 text-on-surface shadow-2xl border-t border-t-white/15"
                 >
-                  <h3 className="font-bold text-lg text-primary">Add Court Closure Blackout</h3>
+                  <h3 className="font-bold text-lg text-primary">{t.addClosureBtn}</h3>
                   <div className="space-y-3 text-xs">
                     <div>
-                      <label className="block text-on-surface-variant font-semibold mb-1">Target Court</label>
+                      <label className="block text-on-surface-variant font-semibold mb-1">{t.targetCourt}</label>
                       <select
                         value={closureForm.courtId}
                         onChange={(e) => setClosureForm({ ...closureForm, courtId: e.target.value })}
                         className="w-full bg-surface-container-high border border-white/10 rounded-xl px-3 py-2 text-on-surface focus:border-primary-container outline-none"
                       >
-                        <option value="ALL">ALL COURTS (Entire Facility)</option>
+                        <option value="ALL">{t.closureAllCourts}</option>
                         {courts.map((c) => (
                           <option key={c.id} value={c.id}>
                             {c.name}
@@ -1070,7 +1070,7 @@ export const AdminDashboardView: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-on-surface-variant font-semibold mb-1">Start Date</label>
+                        <label className="block text-on-surface-variant font-semibold mb-1">{t.startDate}</label>
                         <input
                           type="date"
                           required
@@ -1080,7 +1080,7 @@ export const AdminDashboardView: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-on-surface-variant font-semibold mb-1">End Date</label>
+                        <label className="block text-on-surface-variant font-semibold mb-1">{t.endDate}</label>
                         <input
                           type="date"
                           required
@@ -1091,11 +1091,11 @@ export const AdminDashboardView: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-on-surface-variant font-semibold mb-1">Reason</label>
+                      <label className="block text-on-surface-variant font-semibold mb-1">{t.reasonLabel}</label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Maintenance, Private Tournament"
+                        placeholder={t.reasonPlaceholder}
                         value={closureForm.reason}
                         onChange={(e) => setClosureForm({ ...closureForm, reason: e.target.value })}
                         className="w-full bg-surface-container-high border border-white/10 rounded-xl px-3 py-2 text-on-surface focus:border-primary-container outline-none"
@@ -1105,10 +1105,10 @@ export const AdminDashboardView: React.FC = () => {
 
                   <div className="flex gap-2 pt-2">
                     <button type="submit" className="flex-1 bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-3 rounded-xl text-xs cursor-pointer transition-colors">
-                      Save Blackout
+                      {t.saveClosure}
                     </button>
                     <button type="button" onClick={() => setShowAddClosure(false)} className="px-4 bg-surface-container-high text-on-surface-variant rounded-xl text-xs font-semibold hover:bg-surface-bright cursor-pointer transition-colors">
-                      Cancel
+                      {t.cancel}
                     </button>
                   </div>
                 </motion.form>
@@ -1124,7 +1124,7 @@ export const AdminDashboardView: React.FC = () => {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-bold text-primary">{t.pricingRulesTitle}</h3>
-              <p className="text-xs text-on-surface-variant">Configure decreasing hourly rates based on total booking duration.</p>
+              <p className="text-xs text-on-surface-variant">{t.pricingRulesDesc}</p>
             </div>
             <button
               onClick={() => setShowAddRule(true)}
@@ -1140,13 +1140,13 @@ export const AdminDashboardView: React.FC = () => {
               <motion.div key={rule.id} variants={gridItem} className="glass-panel rounded-2xl p-5 space-y-2 border-t border-t-white/15">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-primary-container font-bold text-sm">
-                    {rule.minHours}-{rule.maxHours} Hour(s) Bracket
+                    {rule.minHours}-{rule.maxHours} {t.hoursBracket}
                   </span>
                   <span className="bg-primary-container/10 text-primary-container border border-primary-container/30 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                    Active
+                    {t.active}
                   </span>
                 </div>
-                <div className="font-heading text-3xl font-bold text-primary">{rule.ratePerHour} {currency} <span className="font-sans text-xs font-normal text-on-surface-variant">/ hr</span></div>
+                <div className="font-heading text-3xl font-bold text-primary">{rule.ratePerHour} {currency} <span className="font-sans text-xs font-normal text-on-surface-variant">/ {t.hourShort}</span></div>
                 <p className="text-xs text-on-surface-variant">{rule.description}</p>
                 <div className="flex justify-end pt-1">
                   <button
@@ -1176,11 +1176,11 @@ export const AdminDashboardView: React.FC = () => {
                   onSubmit={handleSaveRule}
                   className="glass-panel rounded-3xl p-6 w-full max-w-md space-y-4 text-on-surface shadow-2xl border-t border-t-white/15"
                 >
-                  <h3 className="font-bold text-lg text-primary">Add Tiered Pricing Rule</h3>
+                  <h3 className="font-bold text-lg text-primary">{t.addRuleBtn}</h3>
                   <div className="space-y-3 text-xs">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-on-surface-variant font-semibold mb-1">Min Hours</label>
+                        <label className="block text-on-surface-variant font-semibold mb-1">{t.minHours}</label>
                         <input
                           type="number"
                           required
@@ -1190,7 +1190,7 @@ export const AdminDashboardView: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-on-surface-variant font-semibold mb-1">Max Hours</label>
+                        <label className="block text-on-surface-variant font-semibold mb-1">{t.maxHours}</label>
                         <input
                           type="number"
                           required
@@ -1201,7 +1201,7 @@ export const AdminDashboardView: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-on-surface-variant font-semibold mb-1">Applied Hourly Rate ({currency}/hr)</label>
+                      <label className="block text-on-surface-variant font-semibold mb-1">{t.appliedHourlyRate} ({currency}/{t.hourShort})</label>
                       <input
                         type="number"
                         required
@@ -1211,11 +1211,11 @@ export const AdminDashboardView: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-on-surface-variant font-semibold mb-1">Description</label>
+                      <label className="block text-on-surface-variant font-semibold mb-1">{t.description}</label>
                       <input
                         type="text"
                         required
-                        placeholder={`e.g. 2 Hours Tier Offer (8 ${currency}/hr)`}
+                        placeholder={t.rulePlaceholder}
                         value={ruleForm.description}
                         onChange={(e) => setRuleForm({ ...ruleForm, description: e.target.value })}
                         className="w-full bg-surface-container-high border border-white/10 rounded-xl px-3 py-2 text-on-surface focus:border-primary-container outline-none"
@@ -1225,10 +1225,10 @@ export const AdminDashboardView: React.FC = () => {
 
                   <div className="flex gap-2 pt-2">
                     <button type="submit" className="flex-1 bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-bold py-3 rounded-xl text-xs cursor-pointer transition-colors">
-                      Save Tier Rule
+                      {t.saveRule}
                     </button>
                     <button type="button" onClick={() => setShowAddRule(false)} className="px-4 bg-surface-container-high text-on-surface-variant rounded-xl text-xs font-semibold hover:bg-surface-bright cursor-pointer transition-colors">
-                      Cancel
+                      {t.cancel}
                     </button>
                   </div>
                 </motion.form>

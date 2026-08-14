@@ -21,16 +21,17 @@ export const CourtsAndRatesView: React.FC = () => {
   const navigate = useNavigate();
   const onBookNow = () => navigate(ROUTES.book);
 
-  const courtsList = [
-    { id: 1, name: lang === 'ar' ? 'ملعب رقم 1' : 'Court #1', type: lang === 'ar' ? 'مغلق بانورامي' : 'Panoramic Indoor', surface: 'Mondo Supercourt XN (Blue)', lighting: 'Philips LED Sports 1000 Lux' },
-    { id: 2, name: lang === 'ar' ? 'ملعب رقم 2' : 'Court #2', type: lang === 'ar' ? 'مغلق بانورامي' : 'Panoramic Indoor', surface: 'Mondo Supercourt XN (Blue)', lighting: 'Philips LED Sports 1000 Lux' },
-    { id: 3, name: lang === 'ar' ? 'ملعب رقم 3' : 'Court #3', type: lang === 'ar' ? 'مغلق بانورامي' : 'Panoramic Indoor', surface: 'Mondo Supercourt XN (Blue)', lighting: 'Philips LED Sports 1000 Lux' },
-    { id: 4, name: lang === 'ar' ? 'ملعب رقم 4' : 'Court #4', type: lang === 'ar' ? 'مغلق بانورامي' : 'Panoramic Indoor', surface: 'Mondo Supercourt XN (Blue)', lighting: 'Philips LED Sports 1000 Lux' },
-    { id: 5, name: lang === 'ar' ? 'ملعب رقم 5' : 'Court #5', type: lang === 'ar' ? 'خارجي مغطى' : 'Outdoor Covered', surface: 'Textured Turf (Green)', lighting: 'LED Anti-Glare Floodlights' },
-    { id: 6, name: lang === 'ar' ? 'ملعب رقم 6' : 'Court #6', type: lang === 'ar' ? 'خارجي مغطى' : 'Outdoor Covered', surface: 'Textured Turf (Green)', lighting: 'LED Anti-Glare Floodlights' },
-    { id: 7, name: lang === 'ar' ? 'ملعب رقم 7' : 'Court #7', type: lang === 'ar' ? 'خارجي مغطى' : 'Outdoor Covered', surface: 'Textured Turf (Green)', lighting: 'LED Anti-Glare Floodlights' },
-    { id: 8, name: lang === 'ar' ? 'ملعب رقم 8' : 'Court #8', type: lang === 'ar' ? 'خارجي مغطى' : 'Outdoor Covered', surface: 'Textured Turf (Green)', lighting: 'LED Anti-Glare Floodlights' },
-  ];
+  // All eight courts are deliberately identical — that is what makes the
+  // anonymous pool work: any court can be assigned at random for one flat
+  // rate. Advertising an indoor/outdoor split here would contradict both the
+  // allocation logic and the seeded data, which the admin panel displays.
+  const courtsList = Array.from({ length: 8 }, (_, i) => ({
+    id: i + 1,
+    name: `${lang === 'ar' ? 'ملعب رقم' : 'Court #'} ${i + 1}`,
+    type: t.courtTypeLabel,
+    surface: t.courtSurface,
+    lighting: t.courtLighting,
+  }));
 
   return (
     <div className="space-y-12 pb-16">
@@ -54,7 +55,7 @@ export const CourtsAndRatesView: React.FC = () => {
         <div className="max-w-3xl space-y-4 relative z-10">
           <div className="inline-flex items-center gap-2 glass-panel border-primary-container/30 px-3.5 py-1 rounded-full text-xs font-extrabold text-primary-container">
             <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse shadow-[0_0_8px_rgba(195,244,0,0.8)]"></span>
-            <span>World Padel Tour (WPT) Standards</span>
+            <span>{t.ratesHeroBadge}</span>
           </div>
           <h1 className="font-heading text-4xl sm:text-6xl font-extrabold italic tracking-tight text-primary leading-[1.05]">
             {t.ratesHeroTitle}

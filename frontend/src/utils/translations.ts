@@ -79,13 +79,15 @@ export const translations = {
 
     // Club Info View
     infoHeroTitle: 'About PadelPoint Arena Muscat',
-    infoHeroDesc: 'Muscat\'s premier 8-court padel facility featuring 4 climate-controlled indoor panoramic courts and 4 outdoor covered courts with professional Mondo turf.',
+    infoHeroDesc: 'Muscat\'s premier 8-court padel facility — eight identical panoramic glass courts on professional padel turf, under LED anti-glare floodlights.',
     operatingHoursTitle: 'Operating Hours',
     operatingHoursSubtitle: 'Open 7 Days a Week',
-    hoursMonSun: 'Monday – Sunday:',
-    hoursTimeMonSun: '07:00 AM – 01:00 AM',
-    hoursHolidays: 'Public Holidays:',
-    hoursTimeHolidays: '07:00 AM – 02:00 AM',
+    // These must agree with the seeded court hours (07:00–23:00): the booking
+    // grid is built from them, so the last bookable slot is 22:00–23:00.
+    hoursMonSun: 'Daily:',
+    hoursTimeMonSun: '07:00 – 23:00',
+    hoursHolidays: 'Last session starts:',
+    hoursTimeHolidays: '22:00',
     locationTitle: 'Venue Location',
     locationSubtitle: 'Al Khuwair Sports Complex Quarter',
     locationAddress: 'Building 402, Street 18, Al Khuwair South, Muscat, Sultanate of Oman.',
@@ -261,6 +263,71 @@ export const translations = {
     thawaniTestEnv: 'Thawani Sandbox Test Environment',
     thawaniTestNotice: 'In Thawani sandbox mode, transactions complete instantly without real bank charges.',
     close: 'Close',
+
+    // Shared
+    cancel: 'Cancel',
+    remove: 'Remove',
+    save20: 'Save 20%',
+    save30: 'Save 30%',
+    advanceBooking14Days: '14-Day Advance Booking',
+    description: 'Description',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    dateRangeTo: 'to',
+    reasonLabel: 'Reason',
+
+    // Club info / rates
+    infoHeroBadge: 'PadelPoint Arena • Muscat, Sultanate of Oman',
+    faqSubtitle: 'Got questions about booking, court pools, or payments?',
+    ratesHeroBadge: 'World Padel Tour (WPT) Standards',
+    courtTypeLabel: 'Panoramic Glass Court',
+    courtSurface: 'Professional Padel Turf',
+    courtLighting: 'LED Anti-Glare Floodlights',
+
+    // Footer
+    footerQuickLinks: 'Quick Links',
+    footerBadgeTiered: 'Dynamic Tiered Rates',
+    footerBadgePool: 'Anonymous Pool Engine',
+    footerPaymentNote: 'We accept payment on arrival (cash or card at reception) and Thawani online payments in Omani Rial (OMR).',
+
+    // Booking page
+    legendAvailable: 'Available',
+    legendSelected: 'Selected',
+    noSlotsForDate: 'No slots available for this date.',
+    loadingSlots: 'Loading court slots',
+    slotSingular: 'Slot',
+    slotPlural: 'Slots',
+    reservingCourt: 'Reserving your court...',
+    termsNote: 'By confirming, you agree to our booking terms and conditions.',
+    errSlotsLoad: 'Could not load court availability. Please try again.',
+    errBookingFailed: 'Could not confirm your booking. Please try again.',
+
+    // Payment status labels (database enum → readable label)
+    payStatusPaid: 'Paid',
+    payStatusPending: 'Pending',
+    payStatusFailed: 'Failed',
+
+    // Admin
+    usernameLabel: 'Username / Email',
+    passwordLabel: 'Password',
+    logoutTooltip: 'Log out of the admin portal',
+    clearFilter: 'Clear',
+    courtNameLabel: 'Court Name (Internal)',
+    courtNamePlaceholder: 'e.g. Court 9',
+    openingTimeLabel: 'Opening Time',
+    closingTimeLabel: 'Closing Time',
+    saveCourt: 'Create Court',
+    targetCourt: 'Target Court',
+    closureAllCourts: 'All Courts (Entire Facility)',
+    reasonPlaceholder: 'e.g. Maintenance, private tournament',
+    saveClosure: 'Save Closure',
+    hoursBracket: 'Hour(s) Bracket',
+    minHours: 'Min Hours',
+    maxHours: 'Max Hours',
+    appliedHourlyRate: 'Applied Hourly Rate',
+    rulePlaceholder: 'e.g. 2-hour tier offer',
+    saveRule: 'Save Tier Rule',
+    errActionFailed: 'That action could not be completed. Please try again.',
   },
   ar: {
     // Brand & Header
@@ -342,13 +409,13 @@ export const translations = {
 
     // Club Info View
     infoHeroTitle: 'عن أرينا باديل بوينت مسقط',
-    infoHeroDesc: 'الوجهة الأولى للباديل في مسقط وتضم 8 ملاعب احترافية: 4 ملاعب مغلقة ومكيفة بانورامية، و4 ملاعب مغطاة خارجية بعشب موندو العالمي.',
+    infoHeroDesc: 'الوجهة الأولى للباديل في مسقط بثمانية ملاعب زجاجية بانورامية متطابقة بعشب باديل احترافي وإضاءة LED مانعة للوهج.',
     operatingHoursTitle: 'ساعات العمل',
     operatingHoursSubtitle: 'مفتوح 7 أيام في الأسبوع',
-    hoursMonSun: 'الأثنين – الأحد:',
-    hoursTimeMonSun: '07:00 صباحاً – 01:00 صباحاً',
-    hoursHolidays: 'العطلات الرسمية:',
-    hoursTimeHolidays: '07:00 صباحاً – 02:00 صباحاً',
+    hoursMonSun: 'يومياً:',
+    hoursTimeMonSun: '07:00 – 23:00',
+    hoursHolidays: 'آخر حصة تبدأ:',
+    hoursTimeHolidays: '22:00',
     locationTitle: 'موقع النادي',
     locationSubtitle: 'حي مجمع الخوير الرياضي',
     locationAddress: 'مبنى 402، شارع 18، الخوير جنوب، مسقط، سلطنة عُمان.',
@@ -524,5 +591,70 @@ export const translations = {
     thawaniTestEnv: 'بيئة اختبار بوابة ثواني التجريبية',
     thawaniTestNotice: 'في الوضع التجريبي لبوابة ثواني، تكتمل المعاملات فورياً بدون خصم مالي حقيقي.',
     close: 'إغلاق',
+
+    // Shared
+    cancel: 'إلغاء',
+    remove: 'إزالة',
+    save20: 'وفّر 20%',
+    save30: 'وفّر 30%',
+    advanceBooking14Days: 'الحجز المسبق حتى 14 يوماً',
+    description: 'الوصف',
+    startDate: 'تاريخ البداية',
+    endDate: 'تاريخ النهاية',
+    dateRangeTo: 'إلى',
+    reasonLabel: 'السبب',
+
+    // Club info / rates
+    infoHeroBadge: 'أرينا باديل بوينت • مسقط، سلطنة عُمان',
+    faqSubtitle: 'لديك استفسار حول الحجز أو توزيع الملاعب أو طرق الدفع؟',
+    ratesHeroBadge: 'وفق معايير جولة الباديل العالمية (WPT)',
+    courtTypeLabel: 'ملعب زجاجي بانورامي',
+    courtSurface: 'عشب باديل احترافي',
+    courtLighting: 'إضاءة LED مانعة للوهج',
+
+    // Footer
+    footerQuickLinks: 'روابط سريعة',
+    footerBadgeTiered: 'أسعار متدرجة حسب المدة',
+    footerBadgePool: 'نظام توزيع الملاعب الذكي',
+    footerPaymentNote: 'نقبل الدفع عند الوصول (نقداً أو بالبطاقة في الاستقبال) والدفع الإلكتروني عبر ثواني بالريال العُماني (ر.ع.).',
+
+    // Booking page
+    legendAvailable: 'متاح',
+    legendSelected: 'مُختار',
+    noSlotsForDate: 'لا توجد أوقات متاحة في هذا التاريخ.',
+    loadingSlots: 'جارٍ تحميل أوقات الملاعب',
+    slotSingular: 'حصة',
+    slotPlural: 'حصص',
+    reservingCourt: 'جارٍ حجز ملعبك...',
+    termsNote: 'بتأكيد الحجز فإنك توافق على شروط وأحكام الحجز.',
+    errSlotsLoad: 'تعذّر تحميل أوقات الملاعب. يرجى المحاولة مرة أخرى.',
+    errBookingFailed: 'تعذّر تأكيد الحجز. يرجى المحاولة مرة أخرى.',
+
+    // Payment status labels (database enum → readable label)
+    payStatusPaid: 'مدفوع',
+    payStatusPending: 'قيد الانتظار',
+    payStatusFailed: 'فشل',
+
+    // Admin
+    usernameLabel: 'اسم المستخدم / البريد الإلكتروني',
+    passwordLabel: 'كلمة المرور',
+    logoutTooltip: 'تسجيل الخروج من لوحة الإدارة',
+    clearFilter: 'مسح',
+    courtNameLabel: 'اسم الملعب (داخلي)',
+    courtNamePlaceholder: 'مثال: ملعب 9',
+    openingTimeLabel: 'وقت الفتح',
+    closingTimeLabel: 'وقت الإغلاق',
+    saveCourt: 'إنشاء الملعب',
+    targetCourt: 'الملعب المستهدف',
+    closureAllCourts: 'جميع الملاعب (المنشأة بالكامل)',
+    reasonPlaceholder: 'مثال: صيانة، بطولة خاصة',
+    saveClosure: 'حفظ الإغلاق',
+    hoursBracket: 'شريحة الساعات',
+    minHours: 'أقل عدد ساعات',
+    maxHours: 'أكثر عدد ساعات',
+    appliedHourlyRate: 'السعر المطبّق للساعة',
+    rulePlaceholder: 'مثال: عرض شريحة الساعتين',
+    saveRule: 'حفظ قاعدة التسعير',
+    errActionFailed: 'تعذّر إتمام العملية. يرجى المحاولة مرة أخرى.',
   }
 };

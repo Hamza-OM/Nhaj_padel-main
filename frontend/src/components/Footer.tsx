@@ -42,7 +42,7 @@ export const Footer: React.FC = () => {
 
           {/* Quick Navigation */}
           <div className="space-y-3">
-            <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{t.navBookCourt} & More</h3>
+            <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{t.footerQuickLinks}</h3>
             <ul className="space-y-2 text-on-surface-variant">
               <li>
                 <Link
@@ -98,7 +98,7 @@ export const Footer: React.FC = () => {
                 <Clock className="w-3.5 h-3.5 text-primary-container" />
                 <span>{t.hoursMonSun} {t.hoursTimeMonSun}</span>
               </div>
-              <p className="text-[11px] text-on-surface-variant">14-Day advance online bookings enabled.</p>
+              <p className="text-[11px] text-on-surface-variant">{t.advanceBooking14Days}</p>
               <div className="pt-2 text-on-surface-variant">
                 <span className="block font-medium text-on-surface">{t.contactTitle}:</span>
                 <span>{t.contactPhone} • {t.contactEmail}</span>
@@ -110,12 +110,12 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h3 className="font-bold text-sm text-primary uppercase tracking-wider">{t.paymentMethodTitle}</h3>
             <p className="text-on-surface-variant text-[11px] leading-relaxed">
-              We accept Pay on Arrival (Cash or Card at reception) and Thawani Online Gateway payments in Omani Rial (OMR).
+              {t.footerPaymentNote}
             </p>
             <div className="flex items-center gap-2 pt-2">
               <div className="glass-panel px-3 py-1.5 rounded-lg flex items-center gap-2 text-primary-container font-bold text-xs">
                 <CreditCard className="w-4 h-4" />
-                <span>Thawani Payment Gateway</span>
+                <span>{t.thawaniTitle}</span>
               </div>
             </div>
           </div>
@@ -124,11 +124,11 @@ export const Footer: React.FC = () => {
         <div className="border-t border-white/5 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between text-on-surface-variant text-[11px]">
           <p>© {new Date().getFullYear()} {t.footerRights}</p>
           <div className="flex items-center gap-4 mt-2 sm:mt-0">
-            <span>Dynamic Tiered Rates</span>
+            <span>{t.footerBadgeTiered}</span>
             <span>•</span>
-            <span>Anonymous Pool Engine</span>
+            <span>{t.footerBadgePool}</span>
             <span>•</span>
-            <span>Thawani Payment Gateway</span>
+            <span>{t.thawaniTitle}</span>
           </div>
         </div>
       </div>

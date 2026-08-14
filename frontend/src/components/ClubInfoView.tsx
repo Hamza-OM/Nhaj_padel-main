@@ -59,7 +59,7 @@ export const ClubInfoView: React.FC = () => {
         <div className="max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 glass-panel px-3.5 py-1 rounded-full text-xs font-bold text-on-surface">
             <MapPin className="w-3.5 h-3.5 text-primary-container" />
-            <span>PadelPoint Arena • Muscat, Sultanate of Oman</span>
+            <span>{t.infoHeroBadge}</span>
           </div>
           <h1 className="font-heading text-4xl sm:text-6xl font-extrabold italic tracking-tight text-primary leading-[1.05]">
             {t.infoHeroTitle}
@@ -161,7 +161,7 @@ export const ClubInfoView: React.FC = () => {
       <div className="space-y-6">
         <div>
           <h2 className="font-heading text-3xl font-bold text-primary">{t.faqTitle}</h2>
-          <p className="text-sm text-on-surface-variant">Got questions about booking, court pools, or payments?</p>
+          <p className="text-sm text-on-surface-variant">{t.faqSubtitle}</p>
         </div>
 
         <motion.div variants={gridStagger} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
