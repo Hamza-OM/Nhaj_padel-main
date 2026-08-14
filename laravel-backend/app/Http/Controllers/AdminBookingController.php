@@ -21,15 +21,13 @@ class AdminBookingController extends Controller
         }
 
         if ($request->filled('status') && $request->status !== 'ALL') {
-            // Nothing ever writes booking_status = 'completed' — a confirmed booking is
-            // considered completed once its date has passed. Derive it here so the
-            // "Completed" filter (and the status shown per row) actually reflects that.
-            $today = now()->format('Y-m-d');
-
+            // 'completed' is never stored — it means a confirmed booking whose
+            // final hour has passed. Mirror the same rule the resource uses to
+            // render each row, so the filter and the badges agree.
             if ($request->status === 'completed') {
-                $query->where('booking_status', 'confirmed')->where('booking_date', '<', $today);
+                $query->where('booking_status', 'confirmed')->sessionFinished();
             } elseif ($request->status === 'confirmed') {
-                $query->where('booking_status', 'confirmed')->where('booking_date', '>=', $today);
+                $query->where('booking_status', 'confirmed')->sessionStillToCome();
             } else {
                 $query->where('booking_status', $request->status);
             }

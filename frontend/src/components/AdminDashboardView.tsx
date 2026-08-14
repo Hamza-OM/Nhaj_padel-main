@@ -313,14 +313,16 @@ export const AdminDashboardView: React.FC = () => {
     (b) => b.paymentStatus !== 'paid' && b.paymentStatus !== 'cancelled'
   );
 
-  // Still to come — the customer pays at reception on the day.
+  // Whether a session is over is the server's call — it knows the end time of
+  // the last booked hour, which bookingDate alone cannot tell us (it holds the
+  // booking's earliest date, and no time at all).
   const revenueExpected = unpaidLive
-    .filter((b) => b.bookingDate >= todayStr)
+    .filter((b) => b.bookingStatus !== 'completed')
     .reduce((acc, b) => acc + b.totalAmount, 0);
 
   // Sessions that already happened and were never settled at the counter.
   // Not "expected" in any meaningful sense — it's a reconciliation backlog.
-  const unsettledBookings = unpaidLive.filter((b) => b.bookingDate < todayStr);
+  const unsettledBookings = unpaidLive.filter((b) => b.bookingStatus === 'completed');
   const revenueUnsettled = unsettledBookings.reduce((acc, b) => acc + b.totalAmount, 0);
 
   // "Active" closures means currently in effect today, not the total ever created
@@ -832,8 +834,7 @@ export const AdminDashboardView: React.FC = () => {
                               and there is nothing to settle yet. */}
                           {b.paymentMethod === 'arrival' &&
                             b.paymentStatus === 'pending' &&
-                            b.bookingStatus !== 'cancelled' &&
-                            b.bookingDate < todayStr && (
+                            b.bookingStatus === 'completed' && (
                               <div className="flex flex-col gap-1 mt-1">
                                 <button
                                   onClick={() => handleSettleBooking(b, 'paid')}

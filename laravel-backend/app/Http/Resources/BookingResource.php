@@ -26,12 +26,13 @@ class BookingResource extends JsonResource
             ? $this->booking_date->format('Y-m-d')
             : $this->booking_date;
 
-        // Nothing ever writes booking_status = 'completed' in the DB — a confirmed
-        // booking is treated as completed once its date has passed.
-        $bookingStatus = $this->booking_status;
-        if ($bookingStatus === 'confirmed' && $bookingDate < now()->format('Y-m-d')) {
-            $bookingStatus = 'completed';
-        }
+        // Nothing ever writes booking_status = 'completed' in the DB — it is
+        // derived from whether the final booked hour has passed. Comparing
+        // dates alone was wrong twice over: it ignored the time (a session
+        // ending at 15:00 stayed "confirmed" until midnight) and it read
+        // booking_date, which is the booking's *earliest* date, so a
+        // multi-date booking looked finished while later slots were pending.
+        $bookingStatus = $this->isCompleted() ? 'completed' : $this->booking_status;
 
         return [
             'id' => (string) $this->id,
